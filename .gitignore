@@ -1,0 +1,8 @@
+bin/
+cmake-build-debug/
+build/
+*.laz
+*.pcd
+
+# JetBrains
+.idea/
