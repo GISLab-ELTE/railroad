@@ -80,7 +80,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr AboveFilter::process()
 
         stopTimeMeasure();
         Projection projectionObj2(cloud, 0.25);
-        projectionObj.saveToFile("afterCylinder" + std::to_string(a) + ".png");
+        projectionObj2.saveToFile("afterCylinder" + std::to_string(a) + ".png");
         startTimeMeasure();
     }
     return result;

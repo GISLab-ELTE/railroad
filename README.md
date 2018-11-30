@@ -5,7 +5,7 @@ Operating system
 ---------------
 
 The project is built under Linux. It is recommended to use a 64-bit operating system.  
-Ubuntu 16.04 LTS was used during development.
+Ubuntu 16.04 LTS and 18.04 LTS was used during development.
 
 Dependencies
 --------------

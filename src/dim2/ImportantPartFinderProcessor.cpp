@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <vector>
+#include <numeric>
 
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -72,7 +73,7 @@ double ImportantPartFinderProcessor::calculateLinesAnglesMean(const vector<Vec4i
 {
     double mean;
     Mat levelImageWithLines = Mat::zeros(_image.size(), CV_8UC1);
-    vector<double> angles;;
+    vector<double> angles;
     angles.resize(lines.size());
     for (unsigned int b = 0; b < lines.size(); b++) {
         Point p1(lines[b][0], lines[b][1]);
@@ -81,7 +82,7 @@ double ImportantPartFinderProcessor::calculateLinesAnglesMean(const vector<Vec4i
         line(levelImageWithLines, p1, p2, Scalar(255), 1);
     }
     toShowObjects.push_back(levelImageWithLines);
-    mean = accumulate(angles.begin(), angles.end(), 0.0) / angles.size();
+    mean = std::accumulate(angles.begin(), angles.end(), 0.0) / angles.size();
     return mean;
 }
 

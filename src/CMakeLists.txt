@@ -4,6 +4,10 @@ project(railroad)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "-O2 -pedantic -Wall -Wno-unused-result -Wno-strict-aliasing")
 
+# Thread
+find_package(Threads REQUIRED)
+link_libraries(pthread)
+
 # Boost
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_STATIC ON)

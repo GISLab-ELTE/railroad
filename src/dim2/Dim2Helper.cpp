@@ -7,12 +7,15 @@
  * https://opensource.org/licenses/BSD-3-Clause
  */
 
+#include <vector>
+
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include "Dim2Helper.h"
 
 using namespace cv;
+using namespace std;
 
 namespace railroad
 {
