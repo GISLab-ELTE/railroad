@@ -12,7 +12,6 @@ Dependencies
 
 The project uses some third-party dependencies.
 These can be installed from the official repository of the given Linux distribution.
-In Ubuntu 16.04 LTS the following packages are necessary for building:
 *  [GNU Make](https://www.gnu.org/software/make/)
 *  [CMake](https://cmake.org/)
 *  [PCL](http://pointclouds.org/)
@@ -21,7 +20,7 @@ In Ubuntu 16.04 LTS the following packages are necessary for building:
 The following command installs the packages:
 ```bash
 sudo apt-get update
-sudo apt-get install binutils make cmake libpcl-dev libproj-dev libopencv-dev
+sudo apt-get install build-essential make cmake libpcl-dev libproj-dev libopencv-dev
 ```
 
 How to build
@@ -74,16 +73,16 @@ railroad --input cloud.laz --verify cable.laz
 ```
 
 ### Allowed options
-| Option | Description |
-|--------|-------------|
-| `--input <path>` | input file path |
-| `--verify <path>` | verifier file path |
-| `--size <N>` | maximum size of point cloud to process |
-| `--algorithm <alg1> ... <algN>` | specify the algorithm pipes to execute (default: all) |
-| `--boundaries <minX>, <minY>, <maxX>, <maxY>` | boundaries to process |
-| `--usePCDAsCache` | create and use PCD file of LAZ as cache |
-| `--loglevel <level>` | log level (trace, debug, info, warning, error, fatal; default: info)
-| `--help` | produce help message |
+| Option | Description | Mandatory |
+|--------|-------------|-----------|
+| `--input <path>` | input file path | YES |
+| `--verify <path>` | verifier file path | |
+| `--size <N>` | maximum size of point cloud to process | |
+| `--algorithm <alg1> ... <algN>` | specify the algorithm pipes to execute (default: all) | |
+| `--boundaries <minX>, <minY>, <maxX>, <maxY>` | boundaries to process | |
+| `--usePCDAsCache` | create and use PCD file of LAZ as cache | |
+| `--loglevel <level>` | log level (trace, debug, info, warning, error, fatal; default: info) | |
+| `--help` | produce help message | |
 
 ### Implemented algorithms
 | Name | Algorithm pipe |
@@ -107,9 +106,17 @@ railroad --input cloud.laz --verify cable.laz
 | VoronoiAbove | LimiterFilter <br> CutFilter(FROM_ABOVE_VORONOI) <br> AboveFilter |
 | VoronoiAboveCylinder | LimiterFilter <br> CutFilter(FROM_ABOVE_VORONOI) <br> AboveFilter <br> CylinderFilter |
 | GroundDensity | GroundFilter <br> DensityFilter |
-| GroundDensityAbove | GroundFilter <br> DensityFilter <br> AboveFilter |        
+| GroundDensityAbove | GroundFilter <br> DensityFilter <br> AboveFilter |
 | GroundDensityAboveCylinder | GroundFilter <br> DensityFilter <br> AboveFilter <br> CylinderFilter |
 | GroundDensityCylinder | GroundFilter <br> DensityFilter <br> CylinderFilter |
+
+Sample results
+------------
+![Sample result](figs/result.png)
+
+Publications
+------------
+ * [Robust Railroad Cable Detection in Rural Areas from MLS Point Clouds](https://scholarworks.umass.edu/foss4g/vol18/iss1/2/)
 
 Contributing
 ------------
@@ -120,3 +127,4 @@ License
 ------------
 
 This project is licensed under the BSD 3-Clause License - see the [LICENSE](LICENSE) file for details.
+
