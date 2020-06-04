@@ -384,6 +384,24 @@ ProcessorPipeBunch *generateTestPipes()
                   ->add(new CylinderFilter())
         )
         
+        // Author: Friderika Mayer
+        ->add("Ransac",
+              (new ProcessorPipe())
+                  ->add(new HeightFilter())
+                  ->add(new WidthFilter())
+                  ->add(new RansacFilter())
+        )
+        ->add("Hough",
+              (new ProcessorPipe())
+                  ->add(new HeightFilter())
+                  ->add(new Hough3dFilter())
+        )
+        ->add("Growth",
+              (new ProcessorPipe())
+                  ->add(new HeightFilter())
+                  ->add(new GrowthFilter())
+        )
+        
         // Author: Adalbert Demján
         ->add("RailTrack",
              (new ProcessorPipe())
