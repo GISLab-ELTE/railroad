@@ -143,18 +143,17 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr diffPointClouds(
     std::vector<pcl::PointXYZ> removerPoints(remover->begin(), remover->end());
 
     float multiplier = std::pow(10, precision);
-    float divisor = std::pow(10, -precision);
 
     for (auto &p : originalPoints) {
-        p.x = std::round(p.x * multiplier) / divisor;
-        p.y = std::round(p.y * multiplier) / divisor;
-        p.z = std::round(p.z * multiplier) / divisor;
+        p.x = std::round(p.x * multiplier) / multiplier ;
+        p.y = std::round(p.y * multiplier) / multiplier;
+        p.z = std::round(p.z * multiplier) / multiplier;
     }
 
     for (auto &p : removerPoints) {
-        p.x = std::round(p.x * multiplier) / divisor;
-        p.y = std::round(p.y * multiplier) / divisor;
-        p.z = std::round(p.z * multiplier) / divisor;
+        p.x = std::round(p.x * multiplier) / multiplier;
+        p.y = std::round(p.y * multiplier) / multiplier;
+        p.z = std::round(p.z * multiplier) / multiplier;
     }
 
     // Sort point clouds by X, Y, Z

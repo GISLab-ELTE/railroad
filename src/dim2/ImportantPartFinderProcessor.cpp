@@ -7,12 +7,10 @@
  * https://opensource.org/licenses/BSD-3-Clause
  */
 
-#include <iostream>
 #include <vector>
 #include <numeric>
 
 #include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
 
 #include "ImportantPartFinderProcessor.h"
 #include "Dim2Helper.h"
@@ -259,12 +257,12 @@ Mat ImportantPartFinderProcessor::execute()
 {
     toShowObjects.push_back(_image);
     Mat mainDirection;
-    if (mode == FROM_ABOVE_ANGLE) {
+    if (mode == ANGLE) {
         mainDirection = calculateDirectionWithLeveling(4);
-    } else if (mode == FROM_ABOVE_SKELETON) {
+    } else if (mode == SKELETON) {
         mainDirection = calculateSkeleton(_image);
 
-    } else if (mode == FROM_ABOVE_VORONOI) {
+    } else if (mode == VORONOI) {
         mainDirection = calculateVoronoi(_image);
     } else {
         LOG(error) << "Unknown mode in ImportantPartFinderProcessor execute (" << mode << ") ";
@@ -277,7 +275,7 @@ Mat ImportantPartFinderProcessor::execute()
     return interestingArea;
 }
 
-ImportantPartFinderProcessor::ImportantPartFinderProcessor(const std::string &mode) : mode(mode)
+ImportantPartFinderProcessor::ImportantPartFinderProcessor(Mode mode) : mode(mode)
 {
 
 }

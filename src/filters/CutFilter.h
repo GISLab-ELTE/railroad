@@ -21,11 +21,11 @@ namespace railroad
 class CutFilter : public CloudProcessor
 {
 public:
-    CutFilter(const std::string &mode, const std::string &name = "CutFilter")
+    CutFilter(ImportantPartFinderProcessor::Mode mode, const std::string &name = "CutFilter")
         : CloudProcessor(name), mode(mode) {}
 
 protected:
-    std::string mode;
+    ImportantPartFinderProcessor::Mode mode;
     PointCloudPtr process();
 };
 

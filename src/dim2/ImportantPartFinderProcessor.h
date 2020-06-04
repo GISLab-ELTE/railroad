@@ -17,13 +17,18 @@
 
 namespace railroad
 {
-
-const std::string FROM_ABOVE_VORONOI = "voronoi";
-const std::string FROM_ABOVE_SKELETON = "skeleton";
-const std::string FROM_ABOVE_ANGLE = "angle";
-
 class ImportantPartFinderProcessor : public ImageProcessor
 {
+public:
+    enum Mode
+    {
+        VORONOI,
+        SKELETON,
+        ANGLE
+    };
+
+private:
+
     std::vector<cv::Mat> toShowObjects;
 
     cv::Mat calculateDirectionWithLeveling(int levelNum);
@@ -39,10 +44,10 @@ class ImportantPartFinderProcessor : public ImageProcessor
     cv::Mat calculateSkeleton(cv::Mat image);
 
     cv::Mat calculateVoronoi(cv::Mat image);
-    std::string mode;
+    Mode mode;
 public:
     //Available modes: skeleton, voronoi, angle
-    explicit ImportantPartFinderProcessor(const std::string &mode);
+    explicit ImportantPartFinderProcessor(Mode mode);
     cv::Mat execute() override;
 
 

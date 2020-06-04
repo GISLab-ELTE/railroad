@@ -1,6 +1,6 @@
 /*
  * BSD 3-Clause License
- * Copyright (c) 2018, Máté Cserép & Péter Hudoba
+ * Copyright (c) 2018-2020, Máté Cserép & Péter Hudoba
  * All rights reserved.
  *
  * You may obtain a copy of the License at
@@ -15,9 +15,6 @@
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 
-#include "../helpers/PCLHelper.h"
-#include "../helpers/LogHelper.h"
-
 namespace railroad
 {
 
@@ -27,8 +24,10 @@ public:
     typedef typename pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudPtr;
     typedef typename pcl::PointCloud<pcl::PointXYZ>::ConstPtr PointCloudConstPtr;
 
-    CloudProcessor(const std::string &name) : _name(name), _numberOfFilteredPoints(0),
-                                              _isClockRunning(false), _measuredTime(0.0f) {}
+    CloudProcessor(const std::string &name, bool seedRequired = false) :
+    _name(name), _seedRequired(seedRequired),
+    _numberOfFilteredPoints(0), _isClockRunning(false), _measuredTime(0.0f)
+    {}
 
     virtual ~CloudProcessor() {}
 
@@ -40,6 +39,21 @@ public:
     void setInputCloud(const PointCloudConstPtr &cloud)
     {
         _cloud = cloud;
+    }
+
+    PointCloudConstPtr seedCloud()
+    {
+        return _seedCloud;
+    }
+
+    void setSeedCloud(const PointCloudConstPtr &seedCloud)
+    {
+        _seedCloud = seedCloud;
+    }
+
+    bool isSeedRequired()
+    {
+        return _seedRequired;
     }
 
     std::string name()
@@ -74,23 +88,13 @@ public:
         return _numberOfFilteredPoints;
     }
 
-    PointCloudPtr execute()
-    {
-        LOG(debug) << "[" << _name << "] Started filter";
-        startTimeMeasure();
-        PointCloudPtr result = process();
-        stopTimeMeasure();
-        _numberOfFilteredPoints = _cloud->points.size() - result->points.size();
-
-        LOG(info) << "[" << _name << "] "
-                  << "Filtered points: " << (_cloud->size() - result->size())
-                  << " (" << _cloud->size() << " -> " << result->size() << ")";
-        return result;
-    }
+    PointCloudPtr execute();
 
 protected:
     std::string _name;
     PointCloudConstPtr _cloud;
+    PointCloudConstPtr _seedCloud;
+    bool _seedRequired;
     unsigned int _numberOfFilteredPoints;
 
     bool _isClockRunning;

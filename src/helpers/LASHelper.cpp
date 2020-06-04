@@ -35,8 +35,8 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr readLAS(
     LASreader *lasreader = openLASReader(filename, header);
 
     unsigned long size = std::min(static_cast<unsigned long>(lasreader->npoints), maxSize);
-    LOG(info) << "Number of points: " << lasreader->npoints;
-    LOG(info) << "Number of points to process: " << size;
+    LOG(debug) << "Number of points: " << lasreader->npoints;
+    LOG(debug) << "Number of points to read: " << size;
 
     // PCL point cloud
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
@@ -70,8 +70,8 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr readLAS(
     LASreader *lasreader = openLASReader(filename, header);
 
     unsigned long size = std::min(static_cast<unsigned long>(lasreader->npoints), maxSize);
-    LOG(info) << "Number of points: " << lasreader->npoints;
-    LOG(info) << "Number of points to process: " << size;
+    LOG(debug) << "Number of points: " << lasreader->npoints;
+    LOG(debug) << "Number of points to read: " << size;
 
     // PCL point cloud
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);

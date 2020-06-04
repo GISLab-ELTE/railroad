@@ -52,5 +52,5 @@ add_executable(railroad
     dim2/Projection.cpp dim2/Projection.h
     piping/ProcessorPipe.cpp piping/ProcessorPipe.h
     piping/ProcessorPipeBunch.cpp piping/ProcessorPipeBunch.h
-    base/CloudProcessor.h
+    base/CloudProcessor.cpp base/CloudProcessor.h
     Results.h)

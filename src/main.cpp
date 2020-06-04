@@ -1,6 +1,6 @@
 /*
  * BSD 3-Clause License
- * Copyright (c) 2018, Máté Cserép & Péter Hudoba
+ * Copyright (c) 2018-2020, Máté Cserép & Péter Hudoba
  * All rights reserved.
  *
  * You may obtain a copy of the License at
@@ -9,25 +9,21 @@
 
 #include <iostream>
 #include <string>
-#include <algorithm>
-#include <functional>
 #include <climits>
 #include <vector>
-#include <map>
 
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
 
-#include <lasreader.hpp>
-#include <laswriter.hpp>
+#include <lasdefinitions.hpp>
 
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
-#include <pcl/common/io.h>
 #include <pcl/io/pcd_io.h>
 
 #include "helpers/LogHelper.h"
 #include "helpers/LASHelper.h"
+#include "helpers/PCLHelper.h"
 
 #include "filters/DensityFilter.h"
 #include "filters/AboveFilter.h"
@@ -36,10 +32,16 @@
 #include "filters/OutlierFilter.h"
 #include "filters/CutFilter.h"
 #include "filters/LimiterFilter.h"
+#include "filters/RansacFilter.h"
+#include "filters/Hough3dFilter.h"
+#include "filters/GrowthFilter.h"
 #include "filters/RailTrackFilter.h"
+#include "filters/HeightFilter.h"
+#include "filters/WidthFilter.h"
 
 #include "piping/ProcessorPipeBunch.h"
 #include "piping/ProcessorPipe.h"
+
 #include "Results.h"
 
 namespace po = boost::program_options;
@@ -66,6 +68,7 @@ ProcessorPipeBunch *generateTestPipes();
 int main(int argc, char *argv[])
 {
     std::string inputFile;
+    std::string seedFile;
     std::string verifierFile;
     unsigned long maxSize;
     std::vector<long> boundaries;
@@ -77,6 +80,8 @@ int main(int argc, char *argv[])
     desc.add_options()
         ("input,i", po::value<std::string>(&inputFile),
          "input file path")
+        ("seed", po::value<std::string>(&seedFile)->default_value(std::string()),
+         "seed file path (used by some algorithms)")
         ("verify", po::value<std::string>(&verifierFile)->default_value(std::string()),
          "verifier file path")
         ("size", po::value<unsigned long>(&maxSize)->default_value(ULONG_MAX),
@@ -90,6 +95,7 @@ int main(int argc, char *argv[])
          "log level (trace, debug, info, warning, error, fatal)")
         ("help,h", "produce help message");
 
+
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
@@ -100,7 +106,7 @@ int main(int argc, char *argv[])
     // Argument validation
     if (vm.count("help")) {
         std::cout << "BSD 3-Clause License" << std::endl
-                  << "Copyright (c) 2018, Máté Cserép & Péter Hudoba" << std::endl
+                  << "Copyright (c) 2018-2020, Máté Cserép & Péter Hudoba" << std::endl
                   << "All rights reserved." << std::endl
                   << std::endl
                   << "You may obtain a copy of the License at" << std::endl
@@ -123,6 +129,11 @@ int main(int argc, char *argv[])
         }
     }
 
+    if (seedFile.length() > 0 && !fs::exists(seedFile)) {
+        std::cerr << "The seed file does not exist." << std::endl;
+        argumentError = true;
+    }
+
     if (verifierFile.length() > 0 && !fs::exists(verifierFile)) {
         std::cerr << "The verifier file does not exist." << std::endl;
         argumentError = true;
@@ -140,9 +151,11 @@ int main(int argc, char *argv[])
 
     // Input handling
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr seed;
     pcl::PointCloud<pcl::PointXYZ>::Ptr verifier;
     LASheader outputHeader;
 
+    // Read input file
     if (vm.count("usePCDAsCache")) {
         LOG(debug) << "PDA Cache is active";
         if (!fs::exists(inputFile + ".pcd")) {
@@ -166,6 +179,19 @@ int main(int argc, char *argv[])
             cloud = readLAS(inputFile, outputHeader,
                             boundaries[0], boundaries[2], boundaries[1], boundaries[3], maxSize);
     }
+    LOG(info) << "Input file loaded, size: " << cloud->size();
+
+    // Read seed file
+    if (seedFile.length() > 0) {
+        seed = readLAS(seedFile);
+        LOG(info) << "Seed file loaded, size: " << seed->size();
+    }
+
+    // Read verifier file
+    if (verifierFile.length() > 0) {
+        verifier = readLAS(verifierFile);
+        LOG(info) << "Verifier file loaded, size: " << verifier->size();
+    }
 
     // Processing algorithms
     CloudProcessor *algorithm;
@@ -187,13 +213,14 @@ int main(int argc, char *argv[])
             LOG(info) << "Starting " << pipeElement.name << " case";
             algorithm = pipeElement.pipe;
             algorithm->setInputCloud(cloud);
+            if (seedFile.length() > 0)
+                algorithm->setSeedCloud(seed);
             mkdir(pipeElement.name.c_str(), 0777);
             chdir(pipeElement.name.c_str());
             result = algorithm->execute();
             chdir("..");
             auto pipeResults = pipeElement.pipe->getTimeResults();
             outputFile = pipeElement.name + ".laz";
-
 
             LOG(debug) << "Calculating visuals";
             visual = mergePointCloudsVisual(cloud, result, 1);
@@ -202,7 +229,6 @@ int main(int argc, char *argv[])
             LOG(info) << "Finished writing results: " << outputFile;
 
             if (verifierFile.length() > 0) {
-                verifier = readLAS(verifierFile);
                 LOG(debug) << "Result size: " << result->size()
                            << ", Verifier size: " << verifier->size();
 
@@ -229,6 +255,8 @@ int main(int argc, char *argv[])
         }
         std::cout << results;
         std::cout << pointReductionResults;
+
+        delete pipesHolder;
     }
     return Success;
 }
@@ -239,15 +267,15 @@ ProcessorPipeBunch *generateTestPipes()
 
         ->add("Voronoi",
               (new ProcessorPipe())
-                  ->add(new CutFilter(FROM_ABOVE_VORONOI))
+                  ->add(new CutFilter(ImportantPartFinderProcessor::VORONOI))
         )
         ->add("Skeleton",
               (new ProcessorPipe())
-                  ->add(new CutFilter(FROM_ABOVE_SKELETON))
+                  ->add(new CutFilter(ImportantPartFinderProcessor::SKELETON))
         )
         ->add("Angle",
               (new ProcessorPipe())
-                  ->add(new CutFilter(FROM_ABOVE_ANGLE))
+                  ->add(new CutFilter(ImportantPartFinderProcessor::ANGLE))
         )
         ->add("Ground",
               (new ProcessorPipe())
@@ -263,83 +291,71 @@ ProcessorPipeBunch *generateTestPipes()
         )
         ->add("AngleGround",
               (new ProcessorPipe())
-                  ->add(new LimiterFilter())
-                  ->add(new CutFilter(FROM_ABOVE_ANGLE))
+                  ->add(new CutFilter(ImportantPartFinderProcessor::ANGLE))
                   ->add(new GroundFilter())
         )
         ->add("AngleGroundAbove",
               (new ProcessorPipe())
-                  ->add(new LimiterFilter())
-                  ->add(new CutFilter(FROM_ABOVE_ANGLE))
+                  ->add(new CutFilter(ImportantPartFinderProcessor::ANGLE))
                   ->add(new GroundFilter())
                   ->add(new AboveFilter())
         )
         ->add("AngleGroundAboveCylinder",
               (new ProcessorPipe())
-                  ->add(new LimiterFilter())
-                  ->add(new CutFilter(FROM_ABOVE_ANGLE))
+                  ->add(new CutFilter(ImportantPartFinderProcessor::ANGLE))
                   ->add(new GroundFilter())
                   ->add(new AboveFilter())
                   ->add(new CylinderFilter())
         )
         ->add("AngleGroundCylinder",
               (new ProcessorPipe())
-                  ->add(new LimiterFilter())
-                  ->add(new CutFilter(FROM_ABOVE_ANGLE))
+                  ->add(new CutFilter(ImportantPartFinderProcessor::ANGLE))
                   ->add(new GroundFilter())
                   ->add(new CylinderFilter())
         )
         ->add("AngleAbove",
               (new ProcessorPipe())
-                  ->add(new LimiterFilter())
-                  ->add(new CutFilter(FROM_ABOVE_ANGLE))
+                  ->add(new CutFilter(ImportantPartFinderProcessor::ANGLE))
                   ->add(new AboveFilter())
         )
         ->add("AngleAboveCylinder",
               (new ProcessorPipe())
-                  ->add(new LimiterFilter())
-                  ->add(new CutFilter(FROM_ABOVE_ANGLE))
+                  ->add(new CutFilter(ImportantPartFinderProcessor::ANGLE))
                   ->add(new AboveFilter())
                   ->add(new CylinderFilter())
         )
         ->add("VoronoiGround",
               (new ProcessorPipe())
-                  ->add(new LimiterFilter())
-                  ->add(new CutFilter(FROM_ABOVE_VORONOI))
+                  ->add(new CutFilter(ImportantPartFinderProcessor::VORONOI))
                   ->add(new GroundFilter())
         )
         ->add("VoronoiGroundAbove",
               (new ProcessorPipe())
-                  ->add(new LimiterFilter())
-                  ->add(new CutFilter(FROM_ABOVE_VORONOI))
+                  ->add(new CutFilter(ImportantPartFinderProcessor::VORONOI))
                   ->add(new GroundFilter())
                   ->add(new AboveFilter())
         )
         ->add("VoronoiGroundAboveCylinder",
               (new ProcessorPipe())
-                  ->add(new LimiterFilter())
-                  ->add(new CutFilter(FROM_ABOVE_VORONOI))
+                  ->add(new CutFilter(ImportantPartFinderProcessor::VORONOI))
                   ->add(new GroundFilter())
                   ->add(new AboveFilter())
                   ->add(new CylinderFilter())
         )
         ->add("VoronoiGroundCylinder",
               (new ProcessorPipe())
-                  ->add(new LimiterFilter())
-                  ->add(new CutFilter(FROM_ABOVE_VORONOI))
+                  ->add(new CutFilter(ImportantPartFinderProcessor::VORONOI))
                   ->add(new GroundFilter())
                   ->add(new CylinderFilter())
         )
         ->add("VoronoiAbove",
               (new ProcessorPipe())
-                  ->add(new LimiterFilter())
-                  ->add(new CutFilter(FROM_ABOVE_VORONOI))
+                  ->add(new CutFilter(ImportantPartFinderProcessor::VORONOI))
                   ->add(new AboveFilter())
         )
         ->add("VoronoiAboveCylinder",
               (new ProcessorPipe())
-                  ->add(new LimiterFilter())
-                  ->add(new CutFilter(FROM_ABOVE_VORONOI))
+                  ->add(new CutFilter(ImportantPartFinderProcessor::VORONOI))
                   ->add(new AboveFilter())
                   ->add(new CylinderFilter())
         )
@@ -370,10 +386,9 @@ ProcessorPipeBunch *generateTestPipes()
         
         // Author: Adalbert Demján
         ->add("RailTrack",
-              (new ProcessorPipe())
+             (new ProcessorPipe())
                   ->add(new RailTrackFilter())
         );
-
 
     return pipesHolder;
 }

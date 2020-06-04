@@ -8,7 +8,6 @@
  */
 
 #include <algorithm>
-#include <numeric>
 
 #include <pcl/common/common.h>
 #include <pcl/filters/passthrough.h>
@@ -36,7 +35,7 @@ public:
 
     bool isInWithPadding(float val, float padding)
     {
-        return minVal - 1 <= val && val <= maxVal + 1;
+        return minVal - padding <= val && val <= maxVal + padding;
     }
 
     bool isIntersect(Interval *other)

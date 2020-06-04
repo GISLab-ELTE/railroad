@@ -19,6 +19,7 @@
 
 #include "CylinderFilter.h"
 #include "../helpers/LogHelper.h"
+#include "../helpers/PCLHelper.h"
 #include "../dim2/Projection.h"
 
 namespace railroad

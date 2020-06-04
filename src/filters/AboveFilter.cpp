@@ -17,6 +17,7 @@
 #include "../dim2/ImportantPartFinderProcessor.h"
 #include "../dim2/TrackFinderProcessor.h"
 #include "../dim2/Projection.h"
+#include "../helpers/PCLHelper.h"
 
 using namespace std;
 using namespace cv;
