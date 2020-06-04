@@ -9,3 +9,6 @@ build/
 
 # Eclipse
 .project
+
+# Visual Studio
+.vs/

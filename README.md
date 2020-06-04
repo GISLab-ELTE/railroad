@@ -1,5 +1,8 @@
-Robust Railroad Cable Detection Framework
+Robust Railroad Infrastructure Detection Framework
 =========================================
+
+This software library and tool provides a fast and robust solution to extract various railroad infrastructure from dense (MLS) LiDAR point clouds. Primary focus is given to cable and railtrack detection.
+
 
 Operating system
 ---------------
@@ -66,16 +69,17 @@ make
 How to use
 --------------
 
-After successful compilation the `railroad` executable can be used for cable detection algorithms.
+After successful compilation the `railroad` executable can be used for the railroad infrastructure detection algorithms.
 Sample execution:
 ```bash
-railroad --input cloud.laz --verify cable.laz
+railroad --input cloud.laz
 ```
 
 ### Allowed options
 | Option | Description | Mandatory |
 |--------|-------------|-----------|
 | `--input <path>` | input file path | YES |
+| `--seed <path>` | seed file path | |
 | `--verify <path>` | verifier file path | |
 | `--size <N>` | maximum size of point cloud to process | |
 | `--algorithm <alg1> ... <algN>` | specify the algorithm pipes to execute (default: all) | |
@@ -85,38 +89,53 @@ railroad --input cloud.laz --verify cable.laz
 | `--help` | produce help message | |
 
 ### Implemented algorithms
-| Name | Algorithm pipe |
-|------|----------------|
-| Voronoi | CutFilter(FROM_ABOVE_VORONOI) |
-| Skeleton | CutFilter(FROM_ABOVE_SKELETON) |
-| Angle | CutFilter(FROM_ABOVE_ANGLE) |
-| Ground | GroundFilter |
-| Above | AboveFilter |
-| Density | DensityFilter |
-| AngleGround | LimiterFilter <br> CutFilter(FROM_ABOVE_ANGLE) <br> GroundFilter |
-| AngleGroundAbove | LimiterFilter <br> CutFilter(FROM_ABOVE_ANGLE) <br> GroundFilter <br> AboveFilter |
-| AngleGroundAboveCylinder | LimiterFilter <br> CutFilter(FROM_ABOVE_ANGLE) <br> GroundFilter <br> AboveFilter <br> CylinderFilter |
-| AngleGroundCylinder | LimiterFilter <br> CutFilter(FROM_ABOVE_ANGLE) <br> GroundFilter <br> CylinderFilter |
-| AngleAbove | LimiterFilter <br> CutFilter(FROM_ABOVE_ANGLE) <br> AboveFilter |
-| AngleAboveCylinder | LimiterFilter <br> CutFilter(FROM_ABOVE_ANGLE) <br> AboveFilter <br> CylinderFilter |
-| VoronoiGround | LimiterFilter <br> CutFilter(FROM_ABOVE_VORONOI) <br> GroundFilter |
-| VoronoiGroundAbove | LimiterFilter <br> CutFilter(FROM_ABOVE_VORONOI) <br> GroundFilter <br> AboveFilter |
-| VoronoiGroundAboveCylinder | LimiterFilter <br> CutFilter(FROM_ABOVE_VORONOI) <br> GroundFilter <br> AboveFilter <br> CylinderFilter |
-| VoronoiGroundCylinder | LimiterFilter <br> CutFilter(FROM_ABOVE_VORONOI) <br> GroundFilter <br> CylinderFilter |
-| VoronoiAbove | LimiterFilter <br> CutFilter(FROM_ABOVE_VORONOI) <br> AboveFilter |
-| VoronoiAboveCylinder | LimiterFilter <br> CutFilter(FROM_ABOVE_VORONOI) <br> AboveFilter <br> CylinderFilter |
-| GroundDensity | GroundFilter <br> DensityFilter |
-| GroundDensityAbove | GroundFilter <br> DensityFilter <br> AboveFilter |
-| GroundDensityAboveCylinder | GroundFilter <br> DensityFilter <br> AboveFilter <br> CylinderFilter |
-| GroundDensityCylinder | GroundFilter <br> DensityFilter <br> CylinderFilter |
+| Name | Algorithm pipe | Infrastructure |
+|------|----------------|----------------|
+| Voronoi | CutFilter(FROM_ABOVE_VORONOI) | cable |
+| Skeleton | CutFilter(FROM_ABOVE_SKELETON) | cable |
+| Angle | CutFilter(FROM_ABOVE_ANGLE) | cable |
+| Ground | GroundFilter | cable |
+| Above | AboveFilter | cable |
+| Density | DensityFilter | cable |
+| AngleGround | CutFilter(FROM_ABOVE_ANGLE) <br> GroundFilter | cable |
+| AngleGroundAbove | CutFilter(FROM_ABOVE_ANGLE) <br> GroundFilter <br> AboveFilter | cable |
+| AngleGroundAboveCylinder | CutFilter(FROM_ABOVE_ANGLE) <br> GroundFilter <br> AboveFilter <br> CylinderFilter | cable |
+| AngleGroundCylinder | CutFilter(FROM_ABOVE_ANGLE) <br> GroundFilter <br> CylinderFilter | cable |
+| AngleAbove | CutFilter(FROM_ABOVE_ANGLE) <br> AboveFilter | cable |
+| AngleAboveCylinder | CutFilter(FROM_ABOVE_ANGLE) <br> AboveFilter <br> CylinderFilter | cable |
+| VoronoiGround | CutFilter(FROM_ABOVE_VORONOI) <br> GroundFilter | cable |
+| VoronoiGroundAbove | CutFilter(FROM_ABOVE_VORONOI) <br> GroundFilter <br> AboveFilter | cable | cable |
+| VoronoiGroundAboveCylinder | CutFilter(FROM_ABOVE_VORONOI) <br> GroundFilter <br> AboveFilter <br> CylinderFilter | cable |
+| VoronoiGroundCylinder | CutFilter(FROM_ABOVE_VORONOI) <br> GroundFilter <br> CylinderFilter | cable |
+| VoronoiAbove | CutFilter(FROM_ABOVE_VORONOI) <br> AboveFilter | cable |
+| VoronoiAboveCylinder | CutFilter(FROM_ABOVE_VORONOI) <br> AboveFilter <br> CylinderFilter | cable | cable |
+| GroundDensity | GroundFilter <br> DensityFilter | cable |
+| GroundDensityAbove | GroundFilter <br> DensityFilter <br> AboveFilter | cable |
+| GroundDensityAboveCylinder | GroundFilter <br> DensityFilter <br> AboveFilter <br> CylinderFilter | cable |
+| GroundDensityCylinder | GroundFilter <br> DensityFilter <br> CylinderFilter | cable |
+| HeightWidthRansac | HeightFilter <br> WidthFilter <br> RansacFilter | cable |
+| HeightWidthHough3D | HeightFilter <br> WidthFilter <br> Hough3dFilter | cable |
+| HeightGrowth | HeightFilter <br> GrowthFilter | cable |
+| RailTrack | RailTrackFilter | rail track |
 
 Sample results
 ------------
-![Sample result](figs/result.png)
+*Above* pipeline result:  
+![Above pipeline result](figs/result_above.png)
+
+*HeightGrowth* pipeline result:  
+![HeightGrowth pipeline result](figs/result_heightgrowth.png)
+
+*RailTrack* pipeline result:  
+![RailTrack pipeline result](figs/result_railtrack.png)
+
+
 
 Publications
 ------------
- * [Robust Railroad Cable Detection in Rural Areas from MLS Point Clouds](https://scholarworks.umass.edu/foss4g/vol18/iss1/2/)
+ * Máté Cserép, Péter Hudoba, Zoltán Vincellér: *Robust Railroad Cable Detection in Rural Areas from MLS Point Clouds*, In Proceedings of Free and Open Source Software for Geospatial (FOSS4G) Conference, Vol. 18 , Article 2, 2018, [DOI: 10.7275/z46z-xh51](https://doi.org/10.7275/z46z-xh51)
+ * Friderika Mayer: *Powerline tracking and extraction from dense LiDAR point clouds*, MSc thesis, Eötvös Loránd University, 2020
+ * Adalbert Demján: *Object extraction of rail track from VLS LiDAR data*, MSc thesis, Eötvös Loránd University, 2020
 
 Contributing
 ------------
@@ -127,4 +146,3 @@ License
 ------------
 
 This project is licensed under the BSD 3-Clause License - see the [LICENSE](LICENSE) file for details.
-
