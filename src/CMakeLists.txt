@@ -42,6 +42,7 @@ add_executable(railroad
     filters/OutlierFilter.cpp filters/OutlierFilter.h
     filters/CutFilter.cpp filters/CutFilter.h
     filters/LimiterFilter.cpp filters/LimiterFilter.h
+    filters/RailTrackFilter.cpp filters/RailTrackFilter.h
     helpers/PCLHelper.cpp helpers/PCLHelper.h
     helpers/LogHelper.cpp helpers/LogHelper.h
     helpers/LASHelper.cpp helpers/LASHelper.h

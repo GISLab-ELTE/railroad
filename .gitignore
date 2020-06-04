@@ -6,3 +6,6 @@ build/
 
 # JetBrains
 .idea/
+
+# Eclipse
+.project

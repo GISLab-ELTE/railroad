@@ -36,6 +36,7 @@
 #include "filters/OutlierFilter.h"
 #include "filters/CutFilter.h"
 #include "filters/LimiterFilter.h"
+#include "filters/RailTrackFilter.h"
 
 #include "piping/ProcessorPipeBunch.h"
 #include "piping/ProcessorPipe.h"
@@ -365,7 +366,14 @@ ProcessorPipeBunch *generateTestPipes()
                   ->add(new GroundFilter())
                   ->add(new DensityFilter())
                   ->add(new CylinderFilter())
+        )
+        
+        // Author: Adalbert Demján
+        ->add("RailTrack",
+              (new ProcessorPipe())
+                  ->add(new RailTrackFilter())
         );
+
 
     return pipesHolder;
 }
