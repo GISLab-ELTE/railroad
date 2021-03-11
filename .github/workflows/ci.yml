@@ -19,6 +19,9 @@ jobs:
     
     - name: Checkout submodules
       uses: textbook/git-checkout-submodule-action@master
+    
+    - name: Update packages repository
+      run: sudo apt-get update
       
     - name: Install required packages
       run: sudo apt-get install libpcl-dev libproj-dev libopencv-dev
