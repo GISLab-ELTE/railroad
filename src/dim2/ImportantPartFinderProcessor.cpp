@@ -257,20 +257,24 @@ Mat ImportantPartFinderProcessor::execute()
 {
     toShowObjects.push_back(_image);
     Mat mainDirection;
+    std::string filename;
     if (mode == ANGLE) {
         mainDirection = calculateDirectionWithLeveling(4);
+        filename = "angle";
     } else if (mode == SKELETON) {
         mainDirection = calculateSkeleton(_image);
-
+        filename = "skeleton";
     } else if (mode == VORONOI) {
         mainDirection = calculateVoronoi(_image);
+        filename = "voronoi";
     } else {
         LOG(error) << "Unknown mode in ImportantPartFinderProcessor execute (" << mode << ") ";
         mainDirection = Mat(_image.size(), CV_8UC1, 1);
+        filename = "unknown";
     }
 
     Mat interestingArea = grepImageByCenterlines(mainDirection, (int) (50 / 0.25));
-    saveImagesAsGridAndAloneAlso(mode + ".png", toShowObjects);
+    saveImagesAsGridAndAloneAlso(filename + ".png", toShowObjects);
 
     return interestingArea;
 }
