@@ -1,11 +1,4 @@
-[submodule "vendor/LASzip"]
-	path = vendor/LASzip
-	url = https://github.com/LASzip/LASzip.git
-	ignore = dirty
 [submodule "vendor/LAStools"]
 	path = vendor/LAStools
 	url = https://github.com/LAStools/LAStools.git
 	ignore = dirty
-[submodule "vendor/PotreeConverter"]
-	path = vendor/PotreeConverter
-	url = https://github.com/potree/PotreeConverter.git
