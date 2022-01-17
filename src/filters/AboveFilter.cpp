@@ -10,7 +10,7 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/filters/project_inliers.h>
 
-#include <opencv2/core/core.hpp>
+#include <opencv2/core.hpp>
 
 #include "AboveFilter.h"
 #include "../dim2/Dim2Helper.h"

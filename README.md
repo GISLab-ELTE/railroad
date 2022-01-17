@@ -8,7 +8,7 @@ Operating system
 ---------------
 
 The project is built under Linux. It is recommended to use a 64-bit operating system.  
-Ubuntu 16.04 LTS and 18.04 LTS was used during development.
+Ubuntu 20.04 LTS was used during development.
 
 Dependencies
 --------------
@@ -16,9 +16,9 @@ Dependencies
 The project uses some third-party dependencies.
 These can be installed from the official repository of the given Linux distribution.
 *  [GNU Make](https://www.gnu.org/software/make/)
-*  [CMake](https://cmake.org/)
-*  [PCL](http://pointclouds.org/)
-*  [OpenCV](https://opencv.org/)
+*  [CMake](https://cmake.org/), version >= 3.5
+*  [PCL](http://pointclouds.org/), version >= 1.7
+*  [OpenCV](https://opencv.org/), version >= 4.0
 
 The following command installs the packages:
 ```bash

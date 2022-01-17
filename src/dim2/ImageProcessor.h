@@ -10,7 +10,7 @@
 #ifndef RAILROAD_MATPROCESSOR_H
 #define RAILROAD_MATPROCESSOR_H
 
-#include <opencv2/core/core.hpp>
+#include <opencv2/core.hpp>
 
 namespace railroad
 {

@@ -9,9 +9,10 @@
 
 #include <vector>
 
-#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/highgui.hpp>
 
 #include "Dim2Helper.h"
+#include "../helpers/LogHelper.h"
 
 using namespace cv;
 using namespace std;
@@ -83,7 +84,13 @@ void saveImagesAsGridAndAloneAlso(const std::string &filename, const std::vector
 
 void imwriteWithInverse(const std::string &filename, cv::Mat image)
 {
+    if (image.total() == 0) {
+        LOG(warning) << filename << " skipped, would be empty";
+        return; // empty image
+    }
+
     imwrite(filename, image);
+
     Mat toDraw;
     bitwise_not(image, toDraw);
     imwrite("inverse_" + filename, toDraw);

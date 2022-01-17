@@ -7,7 +7,7 @@
  * https://opensource.org/licenses/BSD-3-Clause
  */
 
-#include <opencv2/core/core.hpp>
+#include <opencv2/core.hpp>
 
 #include "CutFilter.h"
 #include "../helpers/LogHelper.h"

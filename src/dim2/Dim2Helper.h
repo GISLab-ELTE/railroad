@@ -10,7 +10,7 @@
 #ifndef RAILROAD_DIM2HELPER_H
 #define RAILROAD_DIM2HELPER_H
 
-#include <opencv2/core/core.hpp>
+#include <opencv2/core.hpp>
 
 namespace railroad
 {

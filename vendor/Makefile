@@ -1,12 +1,19 @@
 CMAKE = cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
 ROOT_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+MKDIR = mkdir -p
+RMDIR = rm -rf
 
 .PHONY: all
 all: LASlib LASzip Potree
 
+.ONESHELL:
 .PHONY: LASlib
 LASlib:
-	$(MAKE) -C LAStools/LASlib
+	cd LAStools
+	$(MKDIR) build && cd build
+	$(CMAKE) -DCMAKE_INSTALL_PREFIX=../install ..
+	$(MAKE)
+	$(MAKE) install
 
 .PHONY: LASzip
 LASzip:
@@ -26,6 +33,6 @@ Potree: LASzip
 
 .PHONY: clean
 clean:
-	$(MAKE) -C LAStools/LASlib clean
-	rm -rf LASzip/build
-	rm -rf PotreeConverter/build
+	$(RMDIR) LAStools/build LAStools/install
+	$(RMDIR) LASzip/build
+	$(RMDIR) PotreeConverter/build

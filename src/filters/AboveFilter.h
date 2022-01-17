@@ -10,7 +10,7 @@
 #ifndef RAILROAD_ABOVEFILTER_H
 #define RAILROAD_ABOVEFILTER_H
 
-#include <opencv2/core/core.hpp>
+#include <opencv2/core.hpp>
 
 #include "../base/CloudProcessor.h"
 

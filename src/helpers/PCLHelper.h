@@ -15,6 +15,8 @@
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 
+#include "LASClass.h"
+
 std::ostream &operator<<(std::ostream &out, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud);
 
 namespace railroad
@@ -33,10 +35,19 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr mergePointClouds(
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr input,
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr result);
 
+pcl::PointCloud<pcl::PointXYZI>::Ptr mergePointClouds(
+    pcl::PointCloud<pcl::PointXYZI>::ConstPtr input,
+    pcl::PointCloud<pcl::PointXYZI>::ConstPtr result);
+
 pcl::PointCloud<pcl::PointXYZI>::Ptr mergePointCloudsVisual(
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr input,
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr result,
-    float resultIntensity = 1);
+    LASClass classification);
+
+pcl::PointCloud<pcl::PointXYZI>::Ptr mergePointCloudsVisual(
+    pcl::PointCloud<pcl::PointXYZI>::ConstPtr input,
+    pcl::PointCloud<pcl::PointXYZ>::ConstPtr result,
+    LASClass classification);
 
 } // railroad
 

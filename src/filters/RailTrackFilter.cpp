@@ -17,8 +17,8 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/filters/project_inliers.h>
 
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/imgproc.hpp>
 
 #include "RailTrackFilter.h"
 #include "AboveFilter.h"
@@ -467,7 +467,7 @@ void RailTrackFilter::calculatePotentialRailLinesWithHoughTransform(pcl::PointCl
     for (const auto &vec : lines) {
         cv::Mat lineMat = Mat::zeros(railH95mat.size(), CV_8UC1);
         cv::Mat startEndPointMat = Mat::zeros(railH95mat.size(), CV_8UC1);
-        cv::line(lineMat, Point(vec[0], vec[1]), Point(vec[2], vec[3]), 255, 1, CV_AA);
+        cv::line(lineMat, Point(vec[0], vec[1]), Point(vec[2], vec[3]), 255, 1, cv::LINE_AA);
         toShowObjects.push_back(lineMat);
         railMats.push_back(lineMat);
     }
@@ -491,7 +491,7 @@ void RailTrackFilter::findRailPairs(vector<RailSeedLine> &railSeedLines,
             if (calculate2DAngleBetweenTwoVectors(it->GetDirectionVec2D(), it2->GetDirectionVec2D()) <=
                 5 * CV_PI / 180 &&
                 abs(calculate2DDistanceBetweenLineAndPoint(it->GetStartPoint2D(), it->GetEndPoint2D(),
-                                                           it2->GetEndPoint2D()) * gridCellSize - 1.455) <= 0.05) {
+                                                           it2->GetEndPoint2D()) * gridCellSize - 1.455) <= 0.1) {
                 LOG(trace) << "found rail pair: " << it->GetDirectionVec2D() << " " << it2->GetDirectionVec2D();
                 railPairs.push_back(pair<RailSeedLine, RailSeedLine>(*it, *it2));
                 break;

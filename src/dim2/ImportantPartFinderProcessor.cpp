@@ -10,7 +10,7 @@
 #include <vector>
 #include <numeric>
 
-#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/imgproc.hpp>
 
 #include "ImportantPartFinderProcessor.h"
 #include "Dim2Helper.h"
@@ -37,7 +37,7 @@ Mat ImportantPartFinderProcessor::calculateDirectionWithLeveling(int levelNum)
 
         if (!lines.empty()) {
             double mean = calculateLinesAnglesMean(lines);
-            LOG(trace) << "Mean:" << mean * 180 / CV_PI << " with" << 1.0f / lines.size() << " (" << lines.size()
+            LOG(trace) << "Mean:" << mean * 180 / CV_PI << " with " << 1.0f / lines.size() << " (" << lines.size()
                        << ") weight ";
             levelAnglesWithWeight.push_back(Vec2d(mean, 1.0f / lines.size()));
         }
@@ -121,7 +121,7 @@ vector<Point> ImportantPartFinderProcessor::calculateConvexHull(Mat image)
     //CONTOUER SEARCH
     vector<vector<Point> > contours;
     vector<Vec4i> hierarchy;
-    findContours(workingImage, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
+    findContours(workingImage, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE, Point(0, 0));
 
     int biggestContour = -1;
     for (unsigned int i = 0; i < contours.size(); i++) {
@@ -167,10 +167,10 @@ vector<Point> ImportantPartFinderProcessor::calculateConvexHull(Mat image)
     LOG(debug) << "Hull size after reduction:" << points.size();
 
     Mat biggestContourImage = image.clone();
-    polylines(biggestContourImage, points, true, Scalar(255), 1, CV_AA, 0);
+    polylines(biggestContourImage, points, true, Scalar(255), 1, cv::LINE_AA, 0);
     int counter = 0;
     for (const auto &p : hull[0]) {
-        circle(biggestContourImage, p, 10, Scalar(50 + counter * 25), CV_FILLED);
+        circle(biggestContourImage, p, 10, Scalar(50 + counter * 25), cv::FILLED);
         counter++;
     }
     toShowObjects.push_back(biggestContourImage);
@@ -245,8 +245,8 @@ Mat ImportantPartFinderProcessor::calculateVoronoi(Mat image)
             ifacet[j] = facets[i][j];
 
         ifacets[0] = ifacet;
-        polylines(centerlineImage, ifacets, true, Scalar(255), 1, CV_AA, 0);
-        circle(workingImage, points[i], 10, Scalar(255), CV_FILLED);
+        polylines(centerlineImage, ifacets, true, Scalar(255), 1, cv::LINE_AA, 0);
+        circle(workingImage, points[i], 10, Scalar(255), cv::FILLED);
     }
     bitwise_or(workingImage, centerlineImage, workingImage);
     toShowObjects.push_back(workingImage.clone());

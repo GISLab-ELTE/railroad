@@ -7,8 +7,8 @@
  * https://opensource.org/licenses/BSD-3-Clause
  */
 
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/imgproc.hpp>
 
 #include "TrackFinderProcessor.h"
 #include "Dim2Helper.h"
@@ -54,7 +54,7 @@ Mat TrackFinderProcessor::houghP(Mat input, int threshold, double minLineLength,
 
     Mat moreInterestingPartsMask = Mat::zeros(input.size(), CV_8UC1);
     for (const auto &vec : lines2) {
-        line(moreInterestingPartsMask, Point(vec[0], vec[1]), Point(vec[2], vec[3]), 255, 1, CV_AA);
+        line(moreInterestingPartsMask, Point(vec[0], vec[1]), Point(vec[2], vec[3]), 255, 1, cv::LINE_AA);
     }
     return moreInterestingPartsMask;
 }

@@ -18,7 +18,7 @@ namespace railroad
 class WidthFilter : public CloudProcessor
 {
 public:
-    WidthFilter(const std::string &name = "WidthFilter", float maxDistance = 1.2)
+    WidthFilter(float maxDistance = 1.2, const std::string &name = "WidthFilter")
         : CloudProcessor(name, true), _maxDistance(maxDistance) {}
 
 protected:

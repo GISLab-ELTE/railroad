@@ -8,6 +8,7 @@
  */
 
 #include "LASHelper.h"
+#include "LASClass.h"
 #include "LogHelper.h"
 
 namespace railroad
@@ -121,18 +122,35 @@ void writeLAS(
         point.Y = (it->y - header.y_offset) / header.y_scale_factor;
         point.Z = (it->z - header.z_offset) / header.z_scale_factor;
 
+        // Set classification
         if (it->intensity > 0) {
-            point.classification = (unsigned char) LASClass::CABLE;
-            // RED
-            point.rgb[0] = 65535 * it->intensity;
-            point.rgb[1] = 0;
-            point.rgb[2] = 0;
-        } else {
-            point.classification = (unsigned char) LASClass::UNCLASSIFIED;
-            // GRAY
-            point.rgb[0] = 32768;
-            point.rgb[1] = 32768;
-            point.rgb[2] = 32768;
+            point.classification = static_cast<unsigned char>(it->intensity);
+        }
+        else {
+            point.classification = static_cast<unsigned char>(LASClass::UNCLASSIFIED);
+        }
+
+        // Set color
+        switch (point.classification) {
+            case static_cast<int>(LASClass::CABLE):
+                // RED
+                point.rgb[0] = 65535;
+                point.rgb[1] = 0;
+                point.rgb[2] = 0;
+                break;
+
+            case static_cast<int>(LASClass::RAIL):
+                // BLUE
+                point.rgb[0] = 0;
+                point.rgb[1] = 0;
+                point.rgb[2] = 65535;
+                break;
+
+            default:
+                // GRAY
+                point.rgb[0] = 32768;
+                point.rgb[1] = 32768;
+                point.rgb[2] = 32768;
         }
 
         // Write the LAS point

@@ -57,7 +57,6 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr diffPointClouds(
     return result;
 }
 
-
 pcl::PointCloud<pcl::PointXYZ>::Ptr mergePointClouds(
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr input,
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr result)
@@ -68,7 +67,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr mergePointClouds(
     // Concatenate input cloud
     *target += *input;
 
-    // Sort point cloud by X, Y, Z, then I (higher intensity first)
+    // Sort point cloud by X, Y, Z
     std::sort(target->begin(), target->end(),
               [](const pcl::PointXYZ &a, const pcl::PointXYZ &b) {
                   if (a.x == b.x)
@@ -78,7 +77,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr mergePointClouds(
                   else return a.x < b.x;
               });
 
-    // Remove duplicated points (first occurence with intensity will remain)
+    // Remove duplicated points (first occurrence will remain)
     target->erase(
         std::unique(target->begin(), target->end(),
                     [](const pcl::PointXYZ &a, const pcl::PointXYZ &b) {
@@ -89,26 +88,15 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr mergePointClouds(
     return target;
 }
 
-
-pcl::PointCloud<pcl::PointXYZI>::Ptr mergePointCloudsVisual(
-    pcl::PointCloud<pcl::PointXYZ>::ConstPtr input,
-    pcl::PointCloud<pcl::PointXYZ>::ConstPtr result,
-    float resultIntensity)
+pcl::PointCloud<pcl::PointXYZI>::Ptr mergePointClouds(
+    pcl::PointCloud<pcl::PointXYZI>::ConstPtr input,
+    pcl::PointCloud<pcl::PointXYZI>::ConstPtr result)
 {
-    // Add intensity to point clouds
-    pcl::PointCloud<pcl::PointXYZI>::Ptr source(new pcl::PointCloud<pcl::PointXYZI>);
-    pcl::copyPointCloud(*input, *source);
-
     pcl::PointCloud<pcl::PointXYZI>::Ptr target(new pcl::PointCloud<pcl::PointXYZI>);
     pcl::copyPointCloud(*result, *target);
 
-    // Set intensity on result cloud
-    for (auto it = target->begin(); it != target->end(); ++it) {
-        it->intensity = resultIntensity;
-    }
-
-    // Concatenate inout cloud
-    *target += *source;
+    // Concatenate input cloud
+    *target += *input;
 
     // Sort point cloud by X, Y, Z, then I (higher intensity first)
     std::sort(target->begin(), target->end(),
@@ -121,7 +109,58 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr mergePointCloudsVisual(
                   else return a.x < b.x;
               });
 
-    // Remove duplicated points (first occurrences with intensity will remain)
+    // Remove duplicated points (first occurrences with higher intensity will remain)
+    target->erase(
+        std::unique(target->begin(), target->end(),
+                    [](const pcl::PointXYZI &a, const pcl::PointXYZI &b) {
+                        return a.x == b.x && a.y == b.y && a.z == b.z;
+                    }),
+        target->end());
+
+    return target;
+}
+
+pcl::PointCloud<pcl::PointXYZI>::Ptr mergePointCloudsVisual(
+    pcl::PointCloud<pcl::PointXYZ>::ConstPtr input,
+    pcl::PointCloud<pcl::PointXYZ>::ConstPtr result,
+    LASClass classification)
+{
+    // Add intensity to input point cloud
+    pcl::PointCloud<pcl::PointXYZI>::Ptr source(new pcl::PointCloud<pcl::PointXYZI>);
+    pcl::copyPointCloud(*input, *source);
+
+    return mergePointCloudsVisual(source, result, classification);
+}
+
+pcl::PointCloud<pcl::PointXYZI>::Ptr mergePointCloudsVisual(
+    pcl::PointCloud<pcl::PointXYZI>::ConstPtr input,
+    pcl::PointCloud<pcl::PointXYZ>::ConstPtr result,
+    LASClass classification)
+{
+    // Add intensity to result point cloud
+    pcl::PointCloud<pcl::PointXYZI>::Ptr target(new pcl::PointCloud<pcl::PointXYZI>);
+    pcl::copyPointCloud(*result, *target);
+
+    // Set intensity on result cloud
+    for (auto it = target->begin(); it != target->end(); ++it) {
+        it->intensity = static_cast<int>(classification);
+    }
+
+    // Concatenate input cloud
+    *target += *input;
+
+    // Sort point cloud by X, Y, Z, then I (higher intensity first)
+    std::sort(target->begin(), target->end(),
+              [](const pcl::PointXYZI &a, const pcl::PointXYZI &b) {
+                  if (a.x == b.x)
+                      if (a.y == b.y)
+                          if (a.z == b.z) return a.intensity > b.intensity;
+                          else return a.z < b.z;
+                      else return a.y < b.y;
+                  else return a.x < b.x;
+              });
+
+    // Remove duplicated points (first occurrences with higher intensity will remain)
     target->erase(
         std::unique(target->begin(), target->end(),
                     [](const pcl::PointXYZI &a, const pcl::PointXYZI &b) {

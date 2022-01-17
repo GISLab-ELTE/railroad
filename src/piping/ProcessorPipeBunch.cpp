@@ -14,9 +14,9 @@
 namespace railroad
 {
 
-ProcessorPipeBunch *ProcessorPipeBunch::add(const std::string &name, ProcessorPipe *pipe)
+ProcessorPipeBunch *ProcessorPipeBunch::add(const std::string &name, LASClass classification, ProcessorPipe *pipe)
 {
-    pipes.push_back(Element(name, pipe));
+    pipes.push_back(Element(name, classification, pipe));
     return this;
 }
 
@@ -29,7 +29,7 @@ std::vector<ProcessorPipeBunch::Element> ProcessorPipeBunch::getPipes() const
 {
     if (!runOnlyNames.empty()) {
         std::vector<Element> ret;
-        for (auto element : pipes) {
+        for (auto& element : pipes) {
             if (find(runOnlyNames.begin(), runOnlyNames.end(), element.name) != runOnlyNames.end()) {
                 ret.push_back(element);
             }

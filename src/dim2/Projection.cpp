@@ -10,8 +10,8 @@
 #include <pcl/point_types.h>
 #include <pcl/common/common.h>
 
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 
 #include "Projection.h"
 #include "Dim2Helper.h"
