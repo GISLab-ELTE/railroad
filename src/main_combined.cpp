@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
         ("input,i", po::value<std::string>(&inputFile),
          "input file path")
         ("seed", po::value<std::string>(&seedFile)->default_value(std::string()),
-         "seed file for cable detection (used by some algorithms)")
+         "seed file path for cable detection (used by some algorithms)")
         ("output,o", po::value<std::string>(&outputDirectory)->default_value(outputDirectory),
          "output directory path (default: ./)")
         ("algorithm-cable", po::value<std::string>(&algorithmCable)->default_value("AngleAbove"),
