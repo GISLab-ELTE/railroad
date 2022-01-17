@@ -100,9 +100,45 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr readLAS(
 }
 
 void writeLAS(
+    const std::string &filename,
+    const LASheader &header,
+    const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
+{
+    // Open LAS/LAZ writer
+    LOG(debug) << "Opening LAS writer";
+    LASwriteOpener laswriteopener;
+    laswriteopener.set_file_name(filename.c_str());
+    LASwriter *laswriter = laswriteopener.open(&header);
+
+    // Init LAS point
+    LASpoint point;
+    point.init(&header, header.point_data_format, header.point_data_record_length, 0);
+
+    // Write PCL point cloud
+    LOG(debug) << "Started writing output";
+    for (auto it = cloud->begin(); it != cloud->end(); ++it) {
+        // Populate the LAS point
+        point.X = (it->x - header.x_offset) / header.x_scale_factor;
+        point.Y = (it->y - header.y_offset) / header.y_scale_factor;
+        point.Z = (it->z - header.z_offset) / header.z_scale_factor;
+
+        // Write the LAS point
+        laswriter->write_point(&point);
+        // Add it to the inventory
+        laswriter->update_inventory(&point);
+    }
+    // Update the header
+    laswriter->update_header(&header, true);
+    LOG(debug) << "Finished writing output";
+
+    laswriter->close();
+    delete laswriter;
+}
+
+void writeLAS(
         const std::string &filename,
         const LASheader &header,
-        const pcl::PointCloud<pcl::PointXYZI>::Ptr cloud)
+        const pcl::PointCloud<pcl::PointXYZL>::Ptr cloud)
 {
     // Open LAS/LAZ writer
     LOG(debug) << "Opening LAS writer";
@@ -123,8 +159,8 @@ void writeLAS(
         point.Z = (it->z - header.z_offset) / header.z_scale_factor;
 
         // Set classification
-        if (it->intensity > 0) {
-            point.classification = static_cast<unsigned char>(it->intensity);
+        if (it->label > 0) {
+            point.classification = static_cast<unsigned char>(it->label);
         }
         else {
             point.classification = static_cast<unsigned char>(LASClass::UNCLASSIFIED);

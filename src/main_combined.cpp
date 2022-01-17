@@ -28,7 +28,6 @@
 #include "piping/ProcessorPipeBunch.h"
 #include "piping/ProcessorPipe.h"
 
-#include "Results.h"
 #include "Pipes.h"
 
 namespace po = boost::program_options;
@@ -192,7 +191,7 @@ int main(int argc, char *argv[])
     // Define result variables
     CloudProcessor *algorithm;
     pcl::PointCloud<pcl::PointXYZ>::Ptr resultCable, resultRail;
-    pcl::PointCloud<pcl::PointXYZI>::Ptr visual;
+    pcl::PointCloud<pcl::PointXYZL>::Ptr visual;
 
     // Executing selected cable detection pipe
     auto pipeElement = pipes[0];

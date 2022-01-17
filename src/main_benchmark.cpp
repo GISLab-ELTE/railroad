@@ -195,9 +195,10 @@ int main(int argc, char *argv[])
 
     // Define result variables
     CloudProcessor *algorithm;
-    std::string outputFile;
+    std::string resultFile;
+    std::string visualFile;
     pcl::PointCloud<pcl::PointXYZ>::Ptr result;
-    pcl::PointCloud<pcl::PointXYZI>::Ptr visual;
+    pcl::PointCloud<pcl::PointXYZL>::Ptr visual;
     Results<double> timeAccuracyResults;
     Results<int> pointReductionResults;
 
@@ -213,13 +214,16 @@ int main(int argc, char *argv[])
         result = algorithm->execute();
         chdir("..");
         auto pipeResults = pipeElement.pipe->getTimeResults();
-        outputFile = pipeElement.name + ".laz";
+        resultFile = pipeElement.name + ".laz";
+        visualFile = pipeElement.name + "_visual.laz";
 
+        LOG(debug) << "Writing results";
+        writeLAS(resultFile, outputHeader, result);
         LOG(debug) << "Calculating visuals";
         visual = mergePointCloudsVisual(cloud, result, pipeElement.classification);
-        LOG(debug) << "Writing results";
-        writeLAS(outputFile, outputHeader, visual);
-        LOG(info) << "Finished writing results: " << outputFile;
+        LOG(debug) << "Writing merged visual results";
+        writeLAS(visualFile, outputHeader, visual);
+        LOG(info) << "Finished writing results: " << resultFile << ", " << visualFile;
 
         if (verifierFile.length() > 0) {
             LOG(debug) << "Result size: " << result->size()

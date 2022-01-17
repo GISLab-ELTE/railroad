@@ -35,17 +35,17 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr mergePointClouds(
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr input,
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr result);
 
-pcl::PointCloud<pcl::PointXYZI>::Ptr mergePointClouds(
-    pcl::PointCloud<pcl::PointXYZI>::ConstPtr input,
-    pcl::PointCloud<pcl::PointXYZI>::ConstPtr result);
+pcl::PointCloud<pcl::PointXYZL>::Ptr mergePointClouds(
+    pcl::PointCloud<pcl::PointXYZL>::ConstPtr input,
+    pcl::PointCloud<pcl::PointXYZL>::ConstPtr result);
 
-pcl::PointCloud<pcl::PointXYZI>::Ptr mergePointCloudsVisual(
+pcl::PointCloud<pcl::PointXYZL>::Ptr mergePointCloudsVisual(
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr input,
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr result,
     LASClass classification);
 
-pcl::PointCloud<pcl::PointXYZI>::Ptr mergePointCloudsVisual(
-    pcl::PointCloud<pcl::PointXYZI>::ConstPtr input,
+pcl::PointCloud<pcl::PointXYZL>::Ptr mergePointCloudsVisual(
+    pcl::PointCloud<pcl::PointXYZL>::ConstPtr input,
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr result,
     LASClass classification);
 
