@@ -12,6 +12,7 @@
 #include <climits>
 #include <vector>
 
+#include <pcl/common/distances.h>
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
 
@@ -24,6 +25,7 @@
 #include "helpers/LogHelper.h"
 #include "helpers/LASHelper.h"
 #include "helpers/PCLHelper.h"
+#include "helpers/BenchmarkHelper.h"
 
 #include "piping/ProcessorPipeBunch.h"
 #include "piping/ProcessorPipe.h"
@@ -49,11 +51,13 @@ enum ExitCodes
     UnexcpectedError = 2,
     Unsupported = 3,
 };
+    
 
 int main(int argc, char *argv[])
 {
     std::string inputFile;
     std::string seedFile;
+    std::string cableFile;
     std::string verifierFile;
     std::string outputDirectory = fs::current_path().string();
     unsigned long maxSize;
@@ -68,6 +72,8 @@ int main(int argc, char *argv[])
          "input file path")
         ("seed", po::value<std::string>(&seedFile)->default_value(std::string()),
          "seed file path (used by some algorithms)")
+        ("seedcable", po::value<std::string>(&cableFile),
+         "cable cloud to cable error detection")
         ("verify", po::value<std::string>(&verifierFile)->default_value(std::string()),
          "verifier file path")
         ("output,o", po::value<std::string>(&outputDirectory)->default_value(outputDirectory),
@@ -121,7 +127,10 @@ int main(int argc, char *argv[])
         std::cerr << "The seed file does not exist." << std::endl;
         argumentError = true;
     }
-
+    if (cableFile.length() > 0 && !fs::exists(cableFile)) {
+        std::cerr << "The seed cable file does not exist." << std::endl;
+        argumentError = true;
+    }
     if (verifierFile.length() > 0 && !fs::exists(verifierFile)) {
         std::cerr << "The verifier file does not exist." << std::endl;
         argumentError = true;
@@ -140,6 +149,7 @@ int main(int argc, char *argv[])
     // Input handling
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
     pcl::PointCloud<pcl::PointXYZ>::Ptr seed;
+    pcl::PointCloud<pcl::PointXYZ>::Ptr base;
     pcl::PointCloud<pcl::PointXYZ>::Ptr verifier;
     LASheader outputHeader;
 
@@ -174,6 +184,12 @@ int main(int argc, char *argv[])
         seed = readLAS(seedFile);
         LOG(info) << "Seed file loaded, size: " << seed->size();
     }
+    
+    // Read base file
+    if (cableFile.length() > 0) {
+        base = readLAS(cableFile);
+        LOG(info) << "Base file loaded, size: " << base->size();
+    }
 
     // Read verifier file
     if (verifierFile.length() > 0) {
@@ -195,36 +211,76 @@ int main(int argc, char *argv[])
 
     // Define result variables
     CloudProcessor *algorithm;
+    BenchmarkHelper benchmark;
     std::string resultFile;
     std::string visualFile;
+    std::string csvFile;
     pcl::PointCloud<pcl::PointXYZ>::Ptr result;
+    std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> results;
+    std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> seedResult;
     pcl::PointCloud<pcl::PointXYZL>::Ptr visual;
     Results<double> timeAccuracyResults;
     Results<int> pointReductionResults;
 
     // Executing selected algorithm pipes
     for (auto pipeElement : pipesHolder->getPipes()) {
-        algorithm = pipeElement.pipe;
-        algorithm->setInputCloud(cloud);
         LOG(info) << "Starting " << pipeElement.name << " case";
-        if (seedFile.length() > 0)
-            algorithm->setSeedCloud(seed);
         mkdir(pipeElement.name.c_str(), 0777);
         chdir(pipeElement.name.c_str());
-        result = algorithm->execute();
+        
+        int length = pipeElement.pipeVector.size()-1;
+        for(int i = 0; i < length+1; i++){
+            
+            //Initalizing actual algorithm from pipeVector
+            algorithm = pipeElement.pipeVector.at(length - i);
+            
+            //Chosing working cloud, in this condition the algorithm can choose pre-calculated result of "cloudIndex"th step to working cloud
+            //We aren't using precalculated cloud in main algorithm OR this step is one of pre-calculation fases OR seed is given (no need to pre-calculate)
+            if(pipeElement.cloudIndex==-1 || i != length || seedFile.length() > 0 )
+
+                if(cableFile.length() > 0)
+                    algorithm->setInputCloud(base);
+                else
+                    algorithm->setInputCloud(cloud);
+            else
+                algorithm->setInputCloud(seedResult.at(pipeElement.cloudIndex));
+            
+            //Seed is given and jumping over pre-calculation steps
+            if (seedFile.length() > 0 ){
+                if(i==length) 
+                    algorithm->setSeedCloud(seed);
+                else 
+                    continue;
+            }
+            //Initializing seed from last step result 
+            else if(i != 0)
+                algorithm->setSeedCloud(seedResult.at(i - 1));
+
+            //Algorithm running with checking (main algorithm or precalculation)
+            if(length == i)
+                result = algorithm->execute();
+            else
+                seedResult.push_back(algorithm->execute());
+        }
         chdir("..");
-        auto pipeResults = pipeElement.pipe->getTimeResults();
+        results=benchmark.noiseFilter(result);
         resultFile = pipeElement.name + ".laz";
         visualFile = pipeElement.name + "_visual.laz";
-
-        LOG(debug) << "Writing results";
-        writeLAS(resultFile, outputHeader, result);
+        csvFile = pipeElement.name + ".csv";
+        writeLAS(resultFile, outputHeader, results.at(0));
         LOG(debug) << "Calculating visuals";
-        visual = mergePointCloudsVisual(cloud, result, pipeElement.classification);
+        visual = mergePointCloudsVisual(cloud, results.at(1), LASClass::LOW_POINT);
+        visual = mergePointCloudsVisual(visual, results.at(0), pipeElement.classification);
         LOG(debug) << "Writing merged visual results";
         writeLAS(visualFile, outputHeader, visual);
         LOG(info) << "Finished writing results: " << resultFile << ", " << visualFile;
+        
+        LOG(debug) << "Writing error positions";
+        if(length>0&&results.at(0)->size()>0)
+            benchmark.writeCSV(csvFile, benchmark.errorPositions(results.at(0)));
 
+        //Calculate time results of main algorithm
+        auto pipeResults = pipeElement.pipeVector.at(0)->getTimeResults(); 
         if (verifierFile.length() > 0) {
             LOG(debug) << "Result size: " << result->size()
                        << ", Verifier size: " << verifier->size();
@@ -241,14 +297,17 @@ int main(int argc, char *argv[])
             LOG(info) << "False negatives: " << falseNegatives
                       << " (" << percentage << "%)";
         }
-
+        
         timeAccuracyResults.add(pipeElement.name, pipeResults);
         LOG(info) << "Time results:";
         for (auto const &x : pipeResults) {
             LOG(info) << x.first << ":" << x.second;
         }
-        pointReductionResults.add(pipeElement.name, pipeElement.pipe->getFilteredPointsResults());
-        delete algorithm;
+
+        pointReductionResults.add(pipeElement.name, pipeElement.pipeVector.at(0)->getFilteredPointsResults());
+
+        for(auto pipeVectorElement : pipeElement.pipeVector)
+            delete pipeVectorElement;
     }
 
     // Save benchmark results
@@ -271,7 +330,6 @@ int main(int argc, char *argv[])
     else {
         LOG(error) << "point_reduction_results.tsv: failed to save";
     }
-
     delete pipesHolder;
     return Success;
 }

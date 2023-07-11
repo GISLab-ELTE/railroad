@@ -68,11 +68,39 @@ Sample execution:
 railroad_combined --input cloud.laz
 ```
 
+### Error detection algorithms
+| Name | Algorithm pipe | Infrastructure |
+|------|----------------|----------------|
+| StructureGauge | StructureGaugeFilter  | low vegetation |
+| CableErrorDetection | CableDetectionFilter  | cable |
+| GroundErrorDetection | VegetationDetectionFilter  | ground |
+
+
+Infrastructure benchmark
+--------------
+
+Sample execution:
+
+```bash
+railroad_benchmark -a StructureGaugeDetection 
+railroad_benchmark -a CableErrorDetection
+railroad_benchmark -a GroundErrorDetection 
+```
+
+Extended execution with precalculated files: (reduced runtime)
+```bash
+railroad_benchmark -a StructureGaugeDetection -i cloud.laz --seed railtrack.laz 
+railroad_benchmark -a CableErrorDetection -i cloud.laz --seed railtrack.laz --seedcable cable.laz 
+railroad_benchmark -a GroundErrorDetection -i cloud.laz --seed railtrack.laz
+```
+
+
 ### Allowed options
 | Option | Description | Mandatory |
 |--------|-------------|-----------|
 | `--input <path>` | input file path | YES |
 | `--seed <path>` | seed file path for cable detection | |
+| `--merge <path>` | merge file path | |
 | `--output <path>` | output directory path (default: `./`) | |
 | `--algorithm-cable <alg>` | specify the algorithm pipe to execute for cable detection (default: `AngleAbove`) | |
 | `--algorithm-rail <alg>` | specify the algorithm pipe to execute for rail track detection (default: `RailTrackWithSeed`) | |

@@ -21,17 +21,21 @@ namespace railroad
 class ProcessorPipeBunch
 {
 public:
-    ProcessorPipeBunch *add(const std::string &name, LASClass classification, ProcessorPipe *pipe);
+    ProcessorPipeBunch *add(const std::string &name, LASClass classification, ProcessorPipe *pipe, const int cloudIndex = -1);
+
+    ProcessorPipeBunch *add(const std::string &name, LASClass classification, std::vector<ProcessorPipe*> pipeVector, const int cloudIndex = -1) ;
 
     class Element
     {
     public:
         std::string name;
         LASClass classification;
-        ProcessorPipe *pipe;
-
-        Element(const std::string &name, LASClass classification, ProcessorPipe *pipe)
-            : name(name), classification(classification), pipe(pipe) {};
+        std::vector<ProcessorPipe*> pipeVector;
+        int cloudIndex;
+        Element(const std::string &name, LASClass classification, ProcessorPipe *pipe, const int cloudIndex)
+            : name(name), classification(classification), pipeVector( std::vector<ProcessorPipe*> () = {pipe}), cloudIndex(cloudIndex)  {};
+        Element(const std::string &name, LASClass classification, std::vector<ProcessorPipe*> pipeVector, const int cloudIndex)
+            : name(name), classification(classification), pipeVector(pipeVector), cloudIndex(cloudIndex) {};
     };
 
     std::vector<Element> getPipes() const;

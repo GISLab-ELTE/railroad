@@ -41,6 +41,7 @@ link_libraries(${OpenCV_LIBS})
 
 add_library(railroad SHARED
     base/CloudProcessor.cpp base/CloudProcessor.h
+    base/ErrorProcessor.cpp base/ErrorProcessor.h
     filters/DensityFilter.cpp filters/DensityFilter.h
     filters/AboveFilter.cpp filters/AboveFilter.h
     filters/CylinderFilter.cpp filters/CylinderFilter.h
@@ -54,12 +55,16 @@ add_library(railroad SHARED
     filters/HeightFilter.cpp filters/HeightFilter.h
     filters/WidthFilter.cpp filters/WidthFilter.h
     filters/RailTrackFilter.cpp filters/RailTrackFilter.h
+    filters/CableDistanceFilter.cpp filters/CableDistanceFilter.h
+    filters/StructureGaugeFilter.cpp filters/StructureGaugeFilter.h
+    filters/VegetationDetectionFilter.cpp filters/VegetationDetectionFilter.h
     dim2/ImportantPartFinderProcessor.cpp dim2/ImportantPartFinderProcessor.h
     dim2/Dim2Helper.cpp dim2/Dim2Helper.h
     dim2/TrackFinderProcessor.cpp dim2/TrackFinderProcessor.h
     dim2/Projection.cpp dim2/Projection.h
     helpers/PCLHelper.cpp helpers/PCLHelper.h
     helpers/LogHelper.cpp helpers/LogHelper.h
+    helpers/BenchmarkHelper.cpp helpers/BenchmarkHelper.h
     helpers/LASHelper.cpp helpers/LASHelper.h helpers/LASClass.h
     helpers/HoughHelper.cpp helpers/HoughHelper.h
     piping/ProcessorPipe.cpp piping/ProcessorPipe.h

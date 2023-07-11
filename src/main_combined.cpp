@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
 
     // Executing selected cable detection pipe
     auto pipeElement = pipes[0];
-    algorithm = pipeElement.pipe;
+    algorithm = pipeElement.pipeVector.at(0);
     algorithm->setInputCloud(cloud);
     LOG(info) << "Starting " << pipeElement.name << " case";
     if (seedFile.length() > 0)
@@ -209,8 +209,8 @@ int main(int argc, char *argv[])
     delete algorithm;
 
     // Executing selected rail track detection pipe
-    pipeElement = pipes[1];
-    algorithm = pipeElement.pipe;
+    pipeElement = pipes[1];    
+    algorithm = pipeElement.pipeVector.at(0);
     algorithm->setInputCloud(cloud);
     LOG(info) << "Starting " << pipeElement.name << " case";
     algorithm->setSeedCloud(resultCable); // use cable result as seed for rail track detection

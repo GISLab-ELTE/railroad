@@ -23,10 +23,13 @@
 #include "filters/RailTrackFilter.h"
 #include "filters/HeightFilter.h"
 #include "filters/WidthFilter.h"
+#include "filters/CableDistanceFilter.h"
+#include "filters/StructureGaugeFilter.h"
+#include "filters/VegetationDetectionFilter.h"
 
 #include "piping/ProcessorPipeBunch.h"
 #include "piping/ProcessorPipe.h"
-
+#include <vector>
 namespace railroad
 {
 
@@ -180,6 +183,46 @@ ProcessorPipeBunch *generateTestPipes()
               (new ProcessorPipe())
                   ->add(new WidthFilter())
                   ->add(new RailTrackFilter())
+        )
+        ->add("CableErrorDetection", LASClass::CABLE,
+        std::vector<ProcessorPipe*>()= {
+            (new ProcessorPipe())
+                ->add(new CableDistanceFilter())
+            ,(new ProcessorPipe())
+                  ->add(new WidthFilter(2))
+                  ->add(new RailTrackFilter())
+            ,(new ProcessorPipe())
+                  ->add(new CutFilter(ImportantPartFinderProcessor::VORONOI))
+                  ->add(new AboveFilter())}
+            ,0
+
+        )
+        ->add("StructureGaugeDetection", LASClass::LOW_VEGETATION,
+
+            std::vector<ProcessorPipe*>()= {
+            (new ProcessorPipe())
+                  ->add(new StructureGaugeFilter())
+            ,(new ProcessorPipe())
+                   ->add(new WidthFilter(2))
+                   ->add(new RailTrackFilter())
+            ,(new ProcessorPipe())
+                   ->add(new CutFilter(ImportantPartFinderProcessor::VORONOI))
+                   ->add(new AboveFilter())
+                   }
+        
+        )
+        ->add("GroundErrorDetection", LASClass::GROUND,
+            std::vector<ProcessorPipe*>()= {
+            (new ProcessorPipe())
+                  ->add(new VegetationDetectionFilter())
+            ,(new ProcessorPipe())
+                   ->add(new WidthFilter(2))
+                   ->add(new RailTrackFilter())
+            ,(new ProcessorPipe())
+                   ->add(new CutFilter(ImportantPartFinderProcessor::VORONOI))
+                   ->add(new AboveFilter())
+                   }
+        
         );
 
     return pipesHolder;

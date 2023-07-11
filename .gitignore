@@ -1,6 +1,7 @@
 bin/
 cmake-build-debug/
 build*/
+src/.vscode
 *.laz
 *.pcd
 

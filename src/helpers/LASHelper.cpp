@@ -181,7 +181,24 @@ void writeLAS(
                 point.rgb[1] = 0;
                 point.rgb[2] = 65535;
                 break;
-
+            case static_cast<int>(LASClass::LOW_VEGETATION):
+                // GREEN
+                point.rgb[0] = 0;
+                point.rgb[1] = 0;
+                point.rgb[2] = 65535;
+                break;
+            case static_cast<int>(LASClass::LOW_POINT):
+                // BLACK
+                point.rgb[0] = 0;
+                point.rgb[1] = 0;
+                point.rgb[2] = 0;
+                break;
+            case static_cast<int>(LASClass::GROUND):
+                // BROWN
+                point.rgb[0] = 38250;
+                point.rgb[1] = 19125;
+                point.rgb[2] = 0;
+                break;
             default:
                 // GRAY
                 point.rgb[0] = 32768;

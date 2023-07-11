@@ -14,12 +14,16 @@
 namespace railroad
 {
 
-ProcessorPipeBunch *ProcessorPipeBunch::add(const std::string &name, LASClass classification, ProcessorPipe *pipe)
+ProcessorPipeBunch *ProcessorPipeBunch::add(const std::string &name, LASClass classification, ProcessorPipe *pipe, const int cloudIndex)
 {
-    pipes.push_back(Element(name, classification, pipe));
+    pipes.push_back(Element(name, classification, pipe, cloudIndex));
     return this;
 }
-
+ProcessorPipeBunch *ProcessorPipeBunch::add(const std::string &name, LASClass classification, std::vector<ProcessorPipe*> pipeVector, const int cloudIndex)
+{
+    pipes.push_back(Element(name, classification, pipeVector, cloudIndex));
+    return this;
+}
 void ProcessorPipeBunch::addToRunOnlyList(const std::string &name)
 {
     runOnlyNames.push_back(name);
