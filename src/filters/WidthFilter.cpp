@@ -20,10 +20,10 @@ namespace railroad
 pcl::PointCloud<pcl::PointXYZ>::Ptr WidthFilter::process()
 {
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
-
     Eigen::VectorXf coeff;
-
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr seedCloudToUse;
+
+    stopTimeMeasure();
 
     if(_runOnSeed != SeedHelper::SeedType::NONE) {
         seedCloudToUse = seedCloud(_runOnSeed);
@@ -70,8 +70,6 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr WidthFilter::process()
         if (point.x <= max && point.x >= min)
             cloud->push_back(_cloud->at(i));
     }
-    
-    //stopTimeMeasure();
 
     return cloud;
 }

@@ -628,12 +628,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr RailTrackFilter::growRailPair(pair<RailSeedL
 pcl::PointCloud<pcl::PointXYZ>::Ptr RailTrackFilter::process()
 {
     stopTimeMeasure();
-
-    if(_useTempSeed)
-        originalCloud = _seedHelper.getTempSeedCloud();
-    else
-        pcl::copyPointCloud(*_cloud, *originalCloud);
-
+    pcl::copyPointCloud(*_cloud, *originalCloud);
     startTimeMeasure();
 
     if (originalCloud->size() == 0)
@@ -666,4 +661,4 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr RailTrackFilter::process()
 
     return result;
 }
-}
+}  // railroad

@@ -51,9 +51,9 @@ enum ExitCodes
 
 int main(int argc, char *argv[])
 {
+    LASAutoShift = false; // not point cloud shift
+    
     std::string inputFile;
-    std::vector<std::string> seedPaths;
-    std::vector<std::string> seedTypes;
     std::string outputDirectory = fs::current_path().string();
     std::string algorithmCable;
     std::string algorithmRail;
@@ -66,10 +66,6 @@ int main(int argc, char *argv[])
     desc.add_options()
         ("input,i", po::value<std::string>(&inputFile),
          "input file path")
-        ("seedpaths,sp", po::value<std::vector<std::string>>(&seedPaths)->multitoken(), 
-        "list of seed file paths (used by some algorithms)")
-        ("seedtypes,st", po::value<std::vector<std::string>>(&seedTypes)->multitoken(), 
-        "list of seed types for seed file paths (rail, pole, cable, ties)")
         ("output,o", po::value<std::string>(&outputDirectory)->default_value(outputDirectory),
          "output directory path (default: ./)")
         ("algorithm-cable", po::value<std::string>(&algorithmCable)->default_value("AngleAbove"),
@@ -92,9 +88,6 @@ int main(int argc, char *argv[])
 
     // Initialize the logger
     initLogger(logLevel);
-
-    // Initialize seedHelper
-    SeedHelper seedHelper(seedPaths, seedTypes);
 
     // Argument validation
     if (vm.count("help")) {
@@ -122,11 +115,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    if(!seedHelper.seedsAreValid()){
-        std::cerr << "Problem with supplied seeds, see above message for details." << std::endl;
-        argumentError = true;
-    }
-
     if (vm.count("boundaries") && boundaries.size() != 4) {
         std::cerr << "Give 4 boundary coordinates: minX, minY, maxX, maxY." << std::endl;
         argumentError = true;
@@ -139,7 +127,6 @@ int main(int argc, char *argv[])
 
     // Input handling
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
-    pcl::PointCloud<pcl::PointXYZ>::Ptr seed;
     LASheader outputHeader;
 
     // Read input file
@@ -167,11 +154,6 @@ int main(int argc, char *argv[])
                             boundaries[0], boundaries[2], boundaries[1], boundaries[3], maxSize);
     }
     LOG(info) << "Input file loaded, size: " << cloud->size();
-
-    // Read new style seed file list
-    if (seedHelper.getSeedFileCount() > 0) {
-        seedHelper.loadSeedFiles();
-    }
 
     // Generate processing algorithms
     ProcessorPipeBunch *pipesHolder = generateTestPipes();
@@ -202,8 +184,7 @@ int main(int argc, char *argv[])
     auto pipeElement = pipes[0];
     algorithm = pipeElement.pipeVector.at(0);
     algorithm->setBaseCloud(cloud);
-    algorithm->setInputCloud(cloud);    
-    algorithm->setSeedHelper(seedHelper);
+    algorithm->setInputCloud(cloud);
     LOG(info) << "Starting " << pipeElement.name << " case";
     mkdir(pipeElement.name.c_str(), 0777);
     chdir(pipeElement.name.c_str());
@@ -213,15 +194,17 @@ int main(int argc, char *argv[])
     visual = mergePointCloudsVisual(cloud, resultCable, pipeElement.classification);
     delete algorithm;
 
+    // Initialize seedHelper for rail detection
+    SeedHelper seedHelper;
+    seedHelper.addArgumentSeed(resultCable);
+
     // Executing selected rail track detection pipe
-    pipeElement = pipes[1];    
+    pipeElement = pipes[1];
     algorithm = pipeElement.pipeVector.at(0);
     algorithm->setBaseCloud(cloud);
     algorithm->setInputCloud(cloud);
     algorithm->setSeedHelper(seedHelper);
     LOG(info) << "Starting " << pipeElement.name << " case";
-    seedHelper.setTempSeedCloud(resultCable);
-    algorithm->useTempSeed(true); // use cable result as seed for rail track detection
     mkdir(pipeElement.name.c_str(), 0777);
     chdir(pipeElement.name.c_str());
     resultRail = algorithm->execute();

@@ -28,8 +28,6 @@ protected:
     float _minDistance=0;
     float _trackWidth;
 };
-}
-
-
+}  // railroad
 
 #endif //RAILROAD_VEGETATIONDETECTIONFILTER_H

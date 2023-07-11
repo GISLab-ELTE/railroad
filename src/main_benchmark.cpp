@@ -51,18 +51,17 @@ enum ExitCodes
     UnexcpectedError = 2,
     Unsupported = 3,
 };
-    
+
 
 int main(int argc, char *argv[])
 {
     std::string inputFile;
-    //std::string seedFile;
     std::vector<std::string> seedPaths;
     std::vector<std::string> seedTypes;
-    //std::string cableFile;
     std::string verifierFile;
     std::string outputDirectory = fs::current_path().string();
     unsigned long maxSize;
+    bool autoShift;
     std::vector<long> boundaries;
     std::vector<std::string> pipes;
     logging::trivial::severity_level logLevel;
@@ -72,9 +71,9 @@ int main(int argc, char *argv[])
     desc.add_options()
         ("input,i", po::value<std::string>(&inputFile),
          "input file path")
-        ("seedpaths,sp", po::value<std::vector<std::string>>(&seedPaths)->multitoken(), 
+        ("seedpaths,sp", po::value<std::vector<std::string>>(&seedPaths)->multitoken(),
         "list of seed file paths (used by some algorithms)")
-        ("seedtypes,st", po::value<std::vector<std::string>>(&seedTypes)->multitoken(), 
+        ("seedtypes,st", po::value<std::vector<std::string>>(&seedTypes)->multitoken(),
         "list of seed types for seed file paths (rail, pole, cable, ties)")
         ("verify", po::value<std::string>(&verifierFile)->default_value(std::string()),
          "verifier file path")
@@ -84,6 +83,8 @@ int main(int argc, char *argv[])
          "maximum size of point cloud to process")
         ("algorithm,a", po::value<std::vector<std::string>>(&pipes)->multitoken(),
          "specify the algorithm pipes to execute (default: all)")
+        ("shift,s", po::bool_switch(&autoShift),
+         "shift point cloud origo during processing to avoid precision loss")
         ("boundaries", po::value<std::vector<long>>(&boundaries)->multitoken(),
          "minX, minY, maxX, maxY boundaries to process")
         ("usePCDAsCache", "create and use PCD file of LAZ as cache")
@@ -91,14 +92,15 @@ int main(int argc, char *argv[])
          "log level (trace, debug, info, warning, error, fatal)")
         ("help,h", "produce help message");
 
-
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
 
+    LASAutoShift = autoShift; // set point cloud shift
+
     // Initialize the logger
     initLogger(logLevel);
-    
+
     // Initialize seedHelper
     SeedHelper seedHelper(seedPaths, seedTypes);
 
@@ -221,10 +223,9 @@ int main(int argc, char *argv[])
         LOG(info) << "Starting " << pipeElement.name << " case";
         mkdir(pipeElement.name.c_str(), 0777);
         chdir(pipeElement.name.c_str());
-        
-        int length = pipeElement.pipeVector.size()-1;
-        for(int i = 0; i < length+1; i++){
-            
+
+        int length = pipeElement.pipeVector.size() - 1;
+        for (int i = 0; i < length+1; i++) {
             //Initalizing actual algorithm from pipeVector
             algorithm = pipeElement.pipeVector.at(length - i);
 
@@ -235,18 +236,20 @@ int main(int argc, char *argv[])
 
             //Chosing working cloud, in this condition the algorithm can choose pre-calculated result of "cloudIndex"th step to working cloud
             //We aren't using precalculated cloud in main algorithm OR this step is one of pre-calculation fases OR seed is given (no need to pre-calculate)
-            if(pipeElement.cloudIndex==-1 || i != length || seedPaths.size() > 0 )
+            if(pipeElement.cloudIndex == -1 || i != length || seedPaths.size() > 0)
                 algorithm->setInputCloud(cloud);
             else
-                algorithm->setInputCloud(seedHelper.getTempSeedCloud());     
+                algorithm->setInputCloud(seedResult.at(pipeElement.cloudIndex));
+
+            if (i != 0 && seedHelper.getSeedFileCount() == 0) {
+                seedHelper.addArgumentSeed(seedResult.at(i - 1));
+            }
 
             //Algorithm running with checking (main algorithm or precalculation)
-            if(length == i)
+            if (length == i)
                 result = algorithm->execute();
-            else {
-                pcl::PointCloud<pcl::PointXYZ>::Ptr tempSeedCloud = algorithm->execute();
-                seedHelper.setTempSeedCloud(tempSeedCloud);                
-            }
+            else
+                seedResult.push_back(algorithm->execute());
         }
         chdir("..");
         results=benchmark.noiseFilter(result);
@@ -260,13 +263,13 @@ int main(int argc, char *argv[])
         LOG(debug) << "Writing merged visual results";
         writeLAS(visualFile, outputHeader, visual);
         LOG(info) << "Finished writing results: " << resultFile << ", " << visualFile;
-        
+
         LOG(debug) << "Writing error positions";
         if(length>0&&results.at(0)->size()>0)
             benchmark.writeCSV(csvFile, benchmark.errorPositions(results.at(0)));
-       
+
         //Calculate time results of main algorithm
-        auto pipeResults = pipeElement.pipeVector.at(0)->getTimeResults(); 
+        auto pipeResults = pipeElement.pipeVector.at(0)->getTimeResults();
         if (verifierFile.length() > 0) {
 
             std::string falsePosFile = pipeElement.name + "_falsepos.laz";
@@ -292,7 +295,7 @@ int main(int argc, char *argv[])
 
             writeLAS(falseNegFile, outputHeader, falseNeg);
         }
-        
+
         timeAccuracyResults.add(pipeElement.name, pipeResults);
         LOG(info) << "Time results:";
         for (auto const &x : pipeResults) {

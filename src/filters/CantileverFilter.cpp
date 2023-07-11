@@ -8,6 +8,7 @@
  */
 
 #include <cmath>
+#include <set>
 
 #include <pcl/common/common.h>
 #include <pcl/search/octree.h>

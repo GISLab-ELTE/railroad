@@ -15,37 +15,37 @@
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 
-typedef typename pcl::PointCloud<pcl::PointXYZ>::ConstPtr PointCloudConstPtr;
-
 namespace railroad
 {
 class SeedHelper
 {
-
 public:
+    typedef typename pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudPtr;
+    typedef typename pcl::PointCloud<pcl::PointXYZ>::ConstPtr PointCloudConstPtr;
+
     enum SeedType
     {
         NONE = -1,
-        RAIL = 0,
-        POLE = 1,
-        CABLE = 2,
-        TIES = 3
+        ARGUMENT = 1,
+        CABLE = 10,
+        POLE = 11,
+        RAIL = 21,
     };
+
     SeedHelper(){};
     SeedHelper(const std::vector<std::string> seedPaths, const std::vector<std::string> seedTypes);
     SeedType getSeedTypeFromString(std::string seedTypeString);
     bool seedsAreValid();
     void loadSeedFiles();
-    void setTempSeedCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr &tempSeedCloud);
     int getSeedFileCount();
     PointCloudConstPtr getSeedCloud(SeedType seedType);
-    pcl::PointCloud<pcl::PointXYZ>::Ptr getTempSeedCloud();
+    void addArgumentSeed(PointCloudConstPtr seed);
+    void removeArgumentSeed();
 private:
-    std::map<std::string, SeedType> _seedMap{{"rail", RAIL}, {"pole", POLE}, {"cable", CABLE}, {"ties", TIES}};
+    std::map<std::string, SeedType> _seedMap{{"rail", RAIL}, {"pole", POLE}, {"cable", CABLE}};
     std::vector<std::string> _seedPaths;
     std::vector<SeedType> _seedTypes;
-    std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> _seedClouds;
-    pcl::PointCloud<pcl::PointXYZ>::Ptr _tempSeedCloud;
+    std::map<SeedType, PointCloudConstPtr> _seedClouds;
 }; // railroad
 }
 #endif //RAILROAD_SEEDHELPER_H

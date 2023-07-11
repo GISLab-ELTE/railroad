@@ -29,8 +29,6 @@ protected:
     float _maxDistance;
     float _maxCableWidth;
 };
-}
-
-
+} // railroad
 
 #endif //RAILROAD_CABLEDISTANCEFILTER_H

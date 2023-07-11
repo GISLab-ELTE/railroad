@@ -22,7 +22,7 @@ namespace railroad
 inline bool arePointsFarApart(const pcl::PointXYZ& point_a, const pcl::PointXYZ& point_b, float dist)
 {
     // TODO: make this parameterizable
-    if(dist > 5.0)
+    if (dist > 5.0)
         return false;
     else
         return true;
@@ -31,10 +31,10 @@ inline bool arePointsFarApart(const pcl::PointXYZ& point_a, const pcl::PointXYZ&
 pcl::PointCloud<pcl::PointXYZ>::Ptr MinDistanceClusterFilter::process()
 {
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
-
     pcl::IndicesClustersPtr clusters(new pcl::IndicesClusters);
-
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr inputCloud;
+
+    stopTimeMeasure();
 
     if(_runOnSeed != SeedHelper::SeedType::NONE) {
         inputCloud = seedCloud(_runOnSeed);
@@ -74,8 +74,6 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr MinDistanceClusterFilter::process()
 
         cloud->push_back(centroidPoint);
     }
-
-    //stopTimeMeasure();
 
     return cloud;
 }

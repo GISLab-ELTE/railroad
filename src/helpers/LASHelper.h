@@ -21,7 +21,8 @@
 
 namespace railroad
 {
-    
+extern bool LASAutoShift;
+
 LASheader readLASHeader(const std::string &filename);
 
 pcl::PointCloud<pcl::PointXYZ>::Ptr readLAS(

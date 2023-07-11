@@ -19,10 +19,9 @@ namespace railroad
 
 pcl::PointCloud<pcl::PointXYZ>::Ptr OutlierFilter::process()
 {
+    stopTimeMeasure();
     LOG(debug) << "Radius: " << radius << ", Neighbors: " << minNeighbors;
-
     pcl::PointCloud<pcl::PointXYZ>::Ptr filtered(new pcl::PointCloud<pcl::PointXYZ>);
-
     startTimeMeasure();
 
     pcl::RadiusOutlierRemoval<pcl::PointXYZ> outlierRemover;
@@ -31,8 +30,6 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr OutlierFilter::process()
     outlierRemover.setMinNeighborsInRadius(minNeighbors);
     outlierRemover.setNegative(invert);
     outlierRemover.filter(*filtered);
-
-    //stopTimeMeasure();
 
     return filtered;
 }

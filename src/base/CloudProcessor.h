@@ -57,7 +57,7 @@ public:
         return _seedHelper.getSeedCloud(seedType);
     }
 
-    void setSeedHelper(const SeedHelper &seedHelper) 
+    void setSeedHelper(const SeedHelper &seedHelper)
     {
         _seedHelper = seedHelper;
     }
@@ -94,10 +94,6 @@ public:
         return _numberOfFilteredPoints;
     }
 
-    void useTempSeed(bool useTempSeed) {
-        _useTempSeed = useTempSeed;
-    }
-
     PointCloudPtr execute();
 
 protected:
@@ -106,7 +102,6 @@ protected:
     PointCloudConstPtr _baseCloud;
     SeedHelper _seedHelper;
     unsigned int _numberOfFilteredPoints;
-    bool _useTempSeed = false;
 
     bool _isClockRunning;
     double _measuredTime;

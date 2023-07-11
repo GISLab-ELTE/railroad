@@ -1,10 +1,21 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.16)
 project(railroad)
 
-set(CMAKE_CXX_STANDARD 11)
+# Set a default build type if none was specified
+set(DEFAULT_BUILD_TYPE "Release")
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    message(STATUS "Setting build type to '${DEFAULT_BUILD_TYPE}' as none was specified.")
+    set(CMAKE_BUILD_TYPE "${DEFAULT_BUILD_TYPE}" CACHE
+        STRING "Choose the type of build." FORCE)
+    # Set the possible values of build type for cmake-gui
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+        "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_FLAGS "-pedantic -Wall -Wno-unused-result -Wno-strict-aliasing")
+set(CMAKE_CXX_FLAGS "-pedantic -Wall -Wno-unused-result")
 set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX})
 
 # Thread
@@ -12,7 +23,7 @@ find_package(Threads REQUIRED)
 link_libraries(pthread)
 
 # Boost
-find_package(Boost REQUIRED COMPONENTS filesystem log program_options)
+find_package(Boost 1.71 REQUIRED COMPONENTS filesystem log program_options)
 include_directories(${Boost_INCLUDE_DIRS})
 link_libraries(${Boost_LIBRARIES})
 
@@ -29,7 +40,7 @@ link_directories(${LASlib_LIBRARY_DIRS})
 link_libraries(${LASlib_LIBRARIES})
 
 # PCL
-find_package(PCL 1.7 REQUIRED COMPONENTS common io filters segmentation visualization)
+find_package(PCL 1.10 REQUIRED COMPONENTS common io filters segmentation visualization)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})

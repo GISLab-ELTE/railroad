@@ -20,6 +20,8 @@
 #include <pcl/console/parse.h>
 #include <pcl/filters/extract_indices.h>
 
+#include <Eigen/Eigenvalues>
+
 #include "Hough3dFilter.h"
 #include "../helpers/HoughHelper.h"
 #include "../helpers/LogHelper.h"

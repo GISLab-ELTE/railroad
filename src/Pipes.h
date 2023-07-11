@@ -165,7 +165,7 @@ ProcessorPipeBunch *generateTestPipes()
                   ->add(new CylinderFilter())
         )
 
-            // Author: Friderika Mayer
+        // Author: Friderika Mayer
         ->add("Ransac", LASClass::CABLE,
               (new ProcessorPipe())
                   ->add(new HeightFilter(SeedHelper::CABLE))
@@ -193,79 +193,80 @@ ProcessorPipeBunch *generateTestPipes()
                   ->add(new WidthFilter(SeedHelper::CABLE))
                   ->add(new RailTrackFilter())
         )
+
+        // Author: Milán Horváth
         ->add("CableErrorDetection", LASClass::CABLE,
-        std::vector<ProcessorPipe*>()= {
+            std::vector<ProcessorPipe*>()= {
             (new ProcessorPipe())
                 ->add(new CableDistanceFilter())
             ,(new ProcessorPipe())
-                  ->add(new WidthFilter(SeedHelper::RAIL, 2))
+                  ->add(new WidthFilter(SeedHelper::CABLE, 2))
                   ->add(new RailTrackFilter())
             ,(new ProcessorPipe())
                   ->add(new CutFilter(ImportantPartFinderProcessor::VORONOI))
-                  ->add(new AboveFilter())}
-            ,0
+                  ->add(new AboveFilter())
+            }, 0
 
         )
         ->add("StructureGaugeDetection", LASClass::LOW_VEGETATION,
-
             std::vector<ProcessorPipe*>()= {
             (new ProcessorPipe())
                   ->add(new StructureGaugeFilter())
             ,(new ProcessorPipe())
-                   ->add(new WidthFilter(SeedHelper::RAIL, 2))
+                   ->add(new WidthFilter(SeedHelper::CABLE, 2))
                    ->add(new RailTrackFilter())
             ,(new ProcessorPipe())
                    ->add(new CutFilter(ImportantPartFinderProcessor::VORONOI))
                    ->add(new AboveFilter())
-                   }
-        
+            }
+
         )
         ->add("GroundErrorDetection", LASClass::GROUND,
             std::vector<ProcessorPipe*>()= {
             (new ProcessorPipe())
                   ->add(new VegetationDetectionFilter())
             ,(new ProcessorPipe())
-                   ->add(new WidthFilter(SeedHelper::RAIL, 2))
+                   ->add(new WidthFilter(SeedHelper::CABLE, 2))
                    ->add(new RailTrackFilter())
             ,(new ProcessorPipe())
                    ->add(new CutFilter(ImportantPartFinderProcessor::VORONOI))
                    ->add(new AboveFilter())
-                   }
-        
+            }
         )
+
+        // Author: Attila Láber
         ->add("PoleDetection", LASClass::POLE,
               (new ProcessorPipe())
-                  ->add(new WidthFilter(SeedHelper::RAIL, 2.2F))   
+                  ->add(new WidthFilter(SeedHelper::RAIL, 2.2F))
                   ->add(new BandPassFilter(SeedHelper::RAIL, 1.0, 3))
                   ->add(new OutlierFilter(0.16, 150))
                   ->add(new BandPassFilter(0.2))
-
-                  ->add(new MinDistanceClusterFilter(5.0))   
-                  ->add(new CorrigateCentroidsFilter(0.5))               
+                  ->add(new MinDistanceClusterFilter(5.0))
+                  ->add(new CorrigateCentroidsFilter(0.5))
                   ->add(new RansacCylinderFilter(0.22))
         )
         ->add("CantileverDetection", LASClass::CANTILEVER,
               (new ProcessorPipe())
-                  ->add(new WidthFilter(SeedHelper::CABLE, 0.5))                  
-                  ->add(new HeightFilter(SeedHelper::CABLE))   
+                  ->add(new WidthFilter(SeedHelper::CABLE, 0.5))
+                  ->add(new HeightFilter(SeedHelper::CABLE))
                   ->add(new CantileverFilter())
         )
         ->add("CableStaggerCheckingFirstClass", LASClass::CABLE,
               (new ProcessorPipe())
                   ->add(new MinHeightFilter(0.18, false))
-                  ->add(new RansacFilter(1000, 0.08))                  
+                  ->add(new RansacFilter(1000, 0.08))
                   ->add(new StaggerFilter(0.4, 0.01, 0.15))
         )
         ->add("CableStaggerCheckingLowerClass", LASClass::CABLE,
               (new ProcessorPipe())
                   ->add(new MinHeightFilter(0.18, false))
-                  ->add(new RansacFilter(1000, 0.08))                  
+                  ->add(new RansacFilter(1000, 0.08))
                   ->add(new StaggerFilter(0.4, 0.03, 0.15))
         )
         ->add("CableStaggerCheckingDemo", LASClass::CABLE,
               (new ProcessorPipe())
                   ->add(new MinHeightFilter(0.18, false))
-                  ->add(new RansacFilter(1000, 0.08))                  
+                  ->add(new RansacFilter(1000, 0.08))
                   ->add(new StaggerFilter(0.2, 0.01, 0.35))
         );
 

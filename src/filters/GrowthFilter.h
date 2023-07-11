@@ -50,7 +50,7 @@ private:
     void findCable(pcl::PointXYZ s, float boxLength, std::vector<int>& insideBox, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, std::vector<int>& cable, float skip);
     float _seedBoxLength;
     int _seedGridCount;
-    int _seedMaxNumberOfPoints;
+    std::size_t _seedMaxNumberOfPoints;
 };
 }  // railroad
 

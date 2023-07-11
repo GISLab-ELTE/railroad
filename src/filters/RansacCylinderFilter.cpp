@@ -9,22 +9,17 @@
 
 #include <cmath>
 
-#include <pcl/common/io.h>
-#include <pcl/filters/passthrough.h>
+#include <pcl/common/common.h>
+#include <pcl/common/angles.h>
 #include <pcl/features/normal_3d.h>
+#include <pcl/filters/extract_indices.h>
 #include <pcl/sample_consensus/method_types.h>
 #include <pcl/sample_consensus/model_types.h>
-#include <pcl/segmentation/sac_segmentation.h>
-#include <pcl/sample_consensus/sac_model_perpendicular_plane.h>
 #include <pcl/sample_consensus/sac_model_cylinder.h>
-#include <pcl/filters/extract_indices.h>
-#include <pcl/features/moment_of_inertia_estimation.h>
-#include <pcl/common/centroid.h>
-#include <pcl/search/kdtree.h>
-#include <pcl/common/pca.h>
+#include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/segmentation/extract_clusters.h>
-#include <pcl/common/angles.h>
-#include <pcl/filters/crop_box.h>
+#include <pcl/search/kdtree.h>
+
 #include <opencv2/core.hpp>
 
 #include "RansacCylinderFilter.h"

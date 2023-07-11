@@ -21,6 +21,8 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr MinHeightFilter::process()
 {
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr inputCloud;
 
+    stopTimeMeasure();
+
     if(_runOnSeed != SeedHelper::SeedType::NONE) {
         inputCloud = seedCloud(_runOnSeed);
         LOG(debug) << "Using seed cloud in filter";
@@ -50,8 +52,6 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr MinHeightFilter::process()
             cloud->push_back(point);
         }
     }
-
-    //stopTimeMeasure();
 
     return cloud;
 }

@@ -18,6 +18,8 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr HeightFilter::process()
 {
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr seedCloudToUse;
 
+    stopTimeMeasure();
+
     if(_runOnSeed != SeedHelper::SeedType::NONE) {
         seedCloudToUse = seedCloud(_runOnSeed);
         LOG(debug) << "Using seed cloud specified in Pipes.h in filter";
@@ -44,8 +46,6 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr HeightFilter::process()
                 cloud->push_back(point);
         }
     }
-
-    //stopTimeMeasure();
 
     return cloud;
 }

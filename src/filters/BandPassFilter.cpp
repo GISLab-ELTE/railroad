@@ -20,8 +20,9 @@ namespace railroad
 pcl::PointCloud<pcl::PointXYZ>::Ptr BandPassFilter::process()
 {
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr seed;
-
     pcl::PointXYZ minPt, maxPt;
+
+    stopTimeMeasure();
 
     if(_runOnSeed != SeedHelper::SeedType::NONE) {
         seed = seedCloud(_runOnSeed);
@@ -53,8 +54,6 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr BandPassFilter::process()
             cloud->push_back(point);
         }
     }
-
-    //stopTimeMeasure();
 
     return cloud;
 }

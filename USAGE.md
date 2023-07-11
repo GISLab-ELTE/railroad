@@ -24,6 +24,7 @@ railroad_benchmark --input cloud.laz
 | `--output <path>` | output directory path (default: ./) | |
 | `--size <N>` | maximum size of point cloud to process | |
 | `--algorithm <alg1> ... <algN>` | specify the algorithm pipes to execute (default: all) | |
+| `--shift` | shift point cloud to origo during processing to avoid precision loss (default: no) | |
 | `--boundaries <minX>, <minY>, <maxX>, <maxY>` | boundaries to process | |
 | `--usePCDAsCache` | create and use PCD file of LAZ as cache | |
 | `--loglevel <level>` | log level (trace, debug, info, warning, error, fatal; default: info) | |
@@ -58,11 +59,31 @@ railroad_benchmark --input cloud.laz
 | HeightWidthHough3D | HeightFilter <br> WidthFilter <br> Hough3dFilter | cable | CABLE (initial section) |
 | HeightGrowth | HeightFilter <br> GrowthFilter | cable | CABLE (initial section) |
 | RailTrack | RailTrackFilter | rail track |
-| RailTrackWithSeed | WidthFilter <br> RailTrackFilter | rail track |  CABLE |
-| PoleDetection| WidthFilter <br> BandPassFilter <br> OutlierFilter <br> BandPassFilter <br> MinDistanceClusterFilter <br> CorrigateCentroidsFilter <br> RansacCylinderFilter | mast |  RAIL |
+| RailTrackWithSeed | WidthFilter <br> RailTrackFilter | rail track | CABLE |
+| PoleDetection | WidthFilter <br> BandPassFilter <br> OutlierFilter <br> BandPassFilter <br> MinDistanceClusterFilter <br> CorrigateCentroidsFilter <br> RansacCylinderFilter | mast | RAIL |
 | CantileverDetection | WidthFilter <br> HeightFilter <br> CantileverFilter | cantilever |  CABLE <br> POLE |
-| CableStaggerCheckingFirstClass | MinHeightFilter <br> RansacFilter <br> StaggerFilter | cable <br> (error checking) |
-| CableStaggerCheckingLowerClass | MinHeightFilter <br> RansacFilter <br> StaggerFilter | cable <br> (error checking) |
+
+Sample execution:
+```bash
+railroad_benchmark -a PoleDetection -i cloud.laz --seedpaths railtrack.laz --seedtypes RAIL
+```
+
+### Error detection algorithms
+| Name | Algorithm pipe | Infrastructure | Required seeds |
+|------|----------------|----------------|----------------|
+| StructureGaugeDetection | StructureGaugeFilter | low vegetation | RAIL |
+| CableErrorDetection | CableDetectionFilter | cable | RAIL <br> CABLE |
+| GroundErrorDetection | VegetationDetectionFilter | ground | RAIL |
+| CableStaggerCheckingFirstClass | MinHeightFilter <br> RansacFilter <br> StaggerFilter | cable |
+| CableStaggerCheckingLowerClass | MinHeightFilter <br> RansacFilter <br> StaggerFilter | cable |
+
+
+Sample execution:
+
+```bash
+railroad_benchmark -a CableErrorDetection -i cloud.laz --seedpaths railtrack.laz cable.laz --seedtypes RAIL CABLE
+```
+
 
 Combined detection
 --------------
@@ -73,40 +94,10 @@ Sample execution:
 railroad_combined --input cloud.laz
 ```
 
-### Error detection algorithms
-| Name | Algorithm pipe | Infrastructure |
-|------|----------------|----------------|
-| StructureGauge | StructureGaugeFilter  | low vegetation |
-| CableErrorDetection | CableDetectionFilter  | cable |
-| GroundErrorDetection | VegetationDetectionFilter  | ground |
-
-
-Infrastructure benchmark
---------------
-
-Sample execution:
-
-```bash
-railroad_benchmark -a StructureGaugeDetection 
-railroad_benchmark -a CableErrorDetection
-railroad_benchmark -a GroundErrorDetection 
-```
-
-Extended execution with precalculated files: (reduced runtime)
-```bash
-railroad_benchmark -a StructureGaugeDetection -i cloud.laz --seedpaths railtrack.laz --seedtypes RAIL
-railroad_benchmark -a CableErrorDetection -i cloud.laz --seedpaths railtrack.laz cable.laz --seedtypes RAIL CABLE
-railroad_benchmark -a GroundErrorDetection -i cloud.laz --seedpaths railtrack.laz --seedtypes RAIL
-```
-
-
 ### Allowed options
 | Option | Description | Mandatory |
 |--------|-------------|-----------|
 | `--input <path>` | input file path | YES |
-| `--seedpaths <path1> ... <pathN>` | seed file paths | |
-| `--seedtypes <type1> ... <typeN>` | seed types for seed file paths (rail, pole, cable, ties) | |
-| `--merge <path>` | merge file path | |
 | `--output <path>` | output directory path (default: `./`) | |
 | `--algorithm-cable <alg>` | specify the algorithm pipe to execute for cable detection (default: `AngleAbove`) | |
 | `--algorithm-rail <alg>` | specify the algorithm pipe to execute for rail track detection (default: `RailTrackWithSeed`) | |

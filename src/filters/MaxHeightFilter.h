@@ -23,7 +23,7 @@ public:
         : CloudProcessor(name), offset(offset), keepBelow(keepBelow) {}
 
     MaxHeightFilter(SeedHelper::SeedType _runOnSeed, double offset = 0.0, bool keepBelow = true, const std::string &name = "MaxHeightFilter")
-        : CloudProcessor(name), offset(offset), _runOnSeed(_runOnSeed), keepBelow(keepBelow) {}
+        : CloudProcessor(name), offset(offset), keepBelow(keepBelow), _runOnSeed(_runOnSeed) {}
 
 protected:
     double offset;

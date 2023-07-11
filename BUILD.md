@@ -15,8 +15,9 @@ Dependencies
 The project uses some third-party dependencies.
 These can be installed from the official repository of the given Linux distribution.
 *  [GNU Make](https://www.gnu.org/software/make/)
-*  [CMake](https://cmake.org/), version >= 3.5
-*  [PCL](http://pointclouds.org/), version >= 1.7
+*  [Boost](https://www.boost.org/), version >= 1.71
+*  [CMake](https://cmake.org/), version >= 3.16
+*  [PCL](http://pointclouds.org/), version >= 1.10
 *  [OpenCV](https://opencv.org/), version >= 4.0
 
 The following command installs the packages:
@@ -31,7 +32,7 @@ Compilation
 ### Submodules
 
 The project depends on some locally built tools:
-* [LASlib](https://github.com/LAStools/LAStools/tree/master/LASlib)
+* [LAStools](https://github.com/LAStools/LAStools) (LASlib and LASzip)
 
 Check out the repository, then initialize the submodules to download the locally built dependencies:
 ```bash

@@ -7,9 +7,8 @@
  * https://opensource.org/licenses/BSD-3-Clause
  */
 
-#include <iostream>
-
 #include <pcl/sample_consensus/ransac.h>
+#include <pcl/sample_consensus/sac_model_parallel_line.h>
 #include <pcl/filters/project_inliers.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/console/parse.h>

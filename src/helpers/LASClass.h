@@ -27,6 +27,7 @@ namespace railroad
 
 enum class LASClass : unsigned char
 {
+    // ASPRS defined classifications
     CREATED = 0_uc,
     UNCLASSIFIED = 1_uc,
     GROUND = 2_uc,
@@ -38,10 +39,13 @@ enum class LASClass : unsigned char
     MODEL_KEY_POINT = 8_uc,
     WATER = 9_uc,
     RAIL = 10_uc,
-    // 10-12 is ASPRS definition reserved
+    ROAD = 11_uc,
     CABLE = 13_uc,
-    POLE = 14_uc,
-    CANTILEVER = 15_uc
+    HIGH_POINT = 18_uc,
+    // custom classifications
+    POLE = 20_uc,
+    CANTILEVER = 21_uc,
+    RAIL_TIES = 22_uc
 };
 
 } // railroad
