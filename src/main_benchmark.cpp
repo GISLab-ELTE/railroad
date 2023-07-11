@@ -12,12 +12,12 @@
 #include <climits>
 #include <vector>
 
-#include <pcl/common/distances.h>
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
 
 #include <lasdefinitions.hpp>
 
+#include <pcl/common/distances.h>
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 #include <pcl/io/pcd_io.h>
@@ -56,8 +56,10 @@ enum ExitCodes
 int main(int argc, char *argv[])
 {
     std::string inputFile;
-    std::string seedFile;
-    std::string cableFile;
+    //std::string seedFile;
+    std::vector<std::string> seedPaths;
+    std::vector<std::string> seedTypes;
+    //std::string cableFile;
     std::string verifierFile;
     std::string outputDirectory = fs::current_path().string();
     unsigned long maxSize;
@@ -70,10 +72,10 @@ int main(int argc, char *argv[])
     desc.add_options()
         ("input,i", po::value<std::string>(&inputFile),
          "input file path")
-        ("seed", po::value<std::string>(&seedFile)->default_value(std::string()),
-         "seed file path (used by some algorithms)")
-        ("seedcable", po::value<std::string>(&cableFile),
-         "cable cloud to cable error detection")
+        ("seedpaths,sp", po::value<std::vector<std::string>>(&seedPaths)->multitoken(), 
+        "list of seed file paths (used by some algorithms)")
+        ("seedtypes,st", po::value<std::vector<std::string>>(&seedTypes)->multitoken(), 
+        "list of seed types for seed file paths (rail, pole, cable, ties)")
         ("verify", po::value<std::string>(&verifierFile)->default_value(std::string()),
          "verifier file path")
         ("output,o", po::value<std::string>(&outputDirectory)->default_value(outputDirectory),
@@ -96,6 +98,9 @@ int main(int argc, char *argv[])
 
     // Initialize the logger
     initLogger(logLevel);
+    
+    // Initialize seedHelper
+    SeedHelper seedHelper(seedPaths, seedTypes);
 
     // Argument validation
     if (vm.count("help")) {
@@ -123,14 +128,11 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (seedFile.length() > 0 && !fs::exists(seedFile)) {
-        std::cerr << "The seed file does not exist." << std::endl;
+    if(!seedHelper.seedsAreValid()){
+        std::cerr << "Problem with supplied seeds, see above message for details." << std::endl;
         argumentError = true;
     }
-    if (cableFile.length() > 0 && !fs::exists(cableFile)) {
-        std::cerr << "The seed cable file does not exist." << std::endl;
-        argumentError = true;
-    }
+
     if (verifierFile.length() > 0 && !fs::exists(verifierFile)) {
         std::cerr << "The verifier file does not exist." << std::endl;
         argumentError = true;
@@ -148,10 +150,9 @@ int main(int argc, char *argv[])
 
     // Input handling
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud;
-    pcl::PointCloud<pcl::PointXYZ>::Ptr seed;
-    pcl::PointCloud<pcl::PointXYZ>::Ptr base;
     pcl::PointCloud<pcl::PointXYZ>::Ptr verifier;
     LASheader outputHeader;
+    LASheader verifierHeader;
 
     // Read input file
     if (vm.count("usePCDAsCache")) {
@@ -179,21 +180,14 @@ int main(int argc, char *argv[])
     }
     LOG(info) << "Input file loaded, size: " << cloud->size();
 
-    // Read seed file
-    if (seedFile.length() > 0) {
-        seed = readLAS(seedFile);
-        LOG(info) << "Seed file loaded, size: " << seed->size();
-    }
-    
-    // Read base file
-    if (cableFile.length() > 0) {
-        base = readLAS(cableFile);
-        LOG(info) << "Base file loaded, size: " << base->size();
+    // Read new style seed file list
+    if (seedHelper.getSeedFileCount() > 0) {
+        seedHelper.loadSeedFiles();
     }
 
     // Read verifier file
     if (verifierFile.length() > 0) {
-        verifier = readLAS(verifierFile);
+        verifier = readLAS(verifierFile, verifierHeader);
         LOG(info) << "Verifier file loaded, size: " << verifier->size();
     }
 
@@ -233,34 +227,26 @@ int main(int argc, char *argv[])
             
             //Initalizing actual algorithm from pipeVector
             algorithm = pipeElement.pipeVector.at(length - i);
-            
+
+            //Always set base cloud
+            algorithm->setBaseCloud(cloud);
+            //Set seedHelper
+            algorithm->setSeedHelper(seedHelper);
+
             //Chosing working cloud, in this condition the algorithm can choose pre-calculated result of "cloudIndex"th step to working cloud
             //We aren't using precalculated cloud in main algorithm OR this step is one of pre-calculation fases OR seed is given (no need to pre-calculate)
-            if(pipeElement.cloudIndex==-1 || i != length || seedFile.length() > 0 )
-
-                if(cableFile.length() > 0)
-                    algorithm->setInputCloud(base);
-                else
-                    algorithm->setInputCloud(cloud);
+            if(pipeElement.cloudIndex==-1 || i != length || seedPaths.size() > 0 )
+                algorithm->setInputCloud(cloud);
             else
-                algorithm->setInputCloud(seedResult.at(pipeElement.cloudIndex));
-            
-            //Seed is given and jumping over pre-calculation steps
-            if (seedFile.length() > 0 ){
-                if(i==length) 
-                    algorithm->setSeedCloud(seed);
-                else 
-                    continue;
-            }
-            //Initializing seed from last step result 
-            else if(i != 0)
-                algorithm->setSeedCloud(seedResult.at(i - 1));
+                algorithm->setInputCloud(seedHelper.getTempSeedCloud());     
 
             //Algorithm running with checking (main algorithm or precalculation)
             if(length == i)
                 result = algorithm->execute();
-            else
-                seedResult.push_back(algorithm->execute());
+            else {
+                pcl::PointCloud<pcl::PointXYZ>::Ptr tempSeedCloud = algorithm->execute();
+                seedHelper.setTempSeedCloud(tempSeedCloud);                
+            }
         }
         chdir("..");
         results=benchmark.noiseFilter(result);
@@ -278,24 +264,33 @@ int main(int argc, char *argv[])
         LOG(debug) << "Writing error positions";
         if(length>0&&results.at(0)->size()>0)
             benchmark.writeCSV(csvFile, benchmark.errorPositions(results.at(0)));
-
+       
         //Calculate time results of main algorithm
         auto pipeResults = pipeElement.pipeVector.at(0)->getTimeResults(); 
         if (verifierFile.length() > 0) {
+
+            std::string falsePosFile = pipeElement.name + "_falsepos.laz";
+            std::string falseNegFile = pipeElement.name + "_falseneg.laz";
+
             LOG(debug) << "Result size: " << result->size()
                        << ", Verifier size: " << verifier->size();
-
-            int falsePositives = diffPointClouds(result, verifier, 3)->size();
+            pcl::PointCloud<pcl::PointXYZ>::Ptr falsePos = diffPointClouds(result, verifier, 3);
+            int falsePositives = falsePos->size();
             double percentage = 100.0 * falsePositives / result->size();
             pipeResults["accuracy_false_positive"] = percentage;
             LOG(info) << "False positives: " << falsePositives
                       << " (" << percentage << "%)";
 
-            int falseNegatives = diffPointClouds(verifier, result, 3)->size();
+            writeLAS(falsePosFile, outputHeader, falsePos);
+
+            pcl::PointCloud<pcl::PointXYZ>::Ptr falseNeg = diffPointClouds(verifier, result, 3);
+            int falseNegatives = falseNeg->size();
             percentage = 100.0 * falseNegatives / verifier->size();
             pipeResults["accuracy_false_negative"] = percentage;
             LOG(info) << "False negatives: " << falseNegatives
                       << " (" << percentage << "%)";
+
+            writeLAS(falseNegFile, outputHeader, falseNeg);
         }
         
         timeAccuracyResults.add(pipeElement.name, pipeResults);

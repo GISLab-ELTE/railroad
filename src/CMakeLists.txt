@@ -50,6 +50,8 @@ add_library(railroad SHARED
     filters/CutFilter.cpp filters/CutFilter.h
     filters/LimiterFilter.cpp filters/LimiterFilter.h
     filters/RansacFilter.cpp filters/RansacFilter.h
+    filters/RansacCylinderFilter.cpp filters/RansacCylinderFilter.h
+    filters/CantileverFilter.cpp filters/CantileverFilter.h
     filters/Hough3dFilter.cpp filters/Hough3dFilter.h
     filters/GrowthFilter.cpp filters/GrowthFilter.h
     filters/HeightFilter.cpp filters/HeightFilter.h
@@ -58,6 +60,13 @@ add_library(railroad SHARED
     filters/CableDistanceFilter.cpp filters/CableDistanceFilter.h
     filters/StructureGaugeFilter.cpp filters/StructureGaugeFilter.h
     filters/VegetationDetectionFilter.cpp filters/VegetationDetectionFilter.h
+    filters/BandPassFilter.cpp filters/BandPassFilter.h
+    filters/EuclideanClusterFilter.cpp filters/EuclideanClusterFilter.h
+    filters/MinDistanceClusterFilter.cpp filters/MinDistanceClusterFilter.h
+    filters/MaxHeightFilter.cpp filters/MaxHeightFilter.h
+    filters/MinHeightFilter.cpp filters/MinHeightFilter.h
+    filters/StaggerFilter.cpp filters/StaggerFilter.h
+    filters/CorrigateCentroidsFilter.cpp filters/CorrigateCentroidsFilter.h
     dim2/ImportantPartFinderProcessor.cpp dim2/ImportantPartFinderProcessor.h
     dim2/Dim2Helper.cpp dim2/Dim2Helper.h
     dim2/TrackFinderProcessor.cpp dim2/TrackFinderProcessor.h
@@ -67,6 +76,7 @@ add_library(railroad SHARED
     helpers/BenchmarkHelper.cpp helpers/BenchmarkHelper.h
     helpers/LASHelper.cpp helpers/LASHelper.h helpers/LASClass.h
     helpers/HoughHelper.cpp helpers/HoughHelper.h
+    helpers/SeedHelper.cpp helpers/SeedHelper.h
     piping/ProcessorPipe.cpp piping/ProcessorPipe.h
     piping/ProcessorPipeBunch.cpp piping/ProcessorPipeBunch.h)
 link_libraries(railroad)

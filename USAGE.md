@@ -1,3 +1,4 @@
+
 Usage instructions
 =========================================
 
@@ -17,7 +18,8 @@ railroad_benchmark --input cloud.laz
 | Option | Description | Mandatory |
 |--------|-------------|-----------|
 | `--input <path>` | input file path | YES |
-| `--seed <path>` | seed file path | |
+| `--seedpaths <path1> ... <pathN>` | seed file paths | |
+| `--seedtypes <type1> ... <typeN>` | seed types for seed file paths (rail, pole, cable, ties) | |
 | `--verify <path>` | verifier file path | |
 | `--output <path>` | output directory path (default: ./) | |
 | `--size <N>` | maximum size of point cloud to process | |
@@ -28,8 +30,8 @@ railroad_benchmark --input cloud.laz
 | `--help` | produce help message | |
 
 ### Implemented algorithms
-| Name | Algorithm pipe | Infrastructure |
-|------|----------------|----------------|
+| Name | Algorithm pipe | Infrastructure | Required seeds |
+|------|----------------|----------------|----------------|
 | Voronoi | CutFilter(FROM_ABOVE_VORONOI) | cable |
 | Skeleton | CutFilter(FROM_ABOVE_SKELETON) | cable |
 | Angle | CutFilter(FROM_ABOVE_ANGLE) | cable |
@@ -43,21 +45,24 @@ railroad_benchmark --input cloud.laz
 | AngleAbove | CutFilter(FROM_ABOVE_ANGLE) <br> AboveFilter | cable |
 | AngleAboveCylinder | CutFilter(FROM_ABOVE_ANGLE) <br> AboveFilter <br> CylinderFilter | cable |
 | VoronoiGround | CutFilter(FROM_ABOVE_VORONOI) <br> GroundFilter | cable |
-| VoronoiGroundAbove | CutFilter(FROM_ABOVE_VORONOI) <br> GroundFilter <br> AboveFilter | cable | cable |
+| VoronoiGroundAbove | CutFilter(FROM_ABOVE_VORONOI) <br> GroundFilter <br> AboveFilter | cable |
 | VoronoiGroundAboveCylinder | CutFilter(FROM_ABOVE_VORONOI) <br> GroundFilter <br> AboveFilter <br> CylinderFilter | cable |
 | VoronoiGroundCylinder | CutFilter(FROM_ABOVE_VORONOI) <br> GroundFilter <br> CylinderFilter | cable |
 | VoronoiAbove | CutFilter(FROM_ABOVE_VORONOI) <br> AboveFilter | cable |
-| VoronoiAboveCylinder | CutFilter(FROM_ABOVE_VORONOI) <br> AboveFilter <br> CylinderFilter | cable | cable |
+| VoronoiAboveCylinder | CutFilter(FROM_ABOVE_VORONOI) <br> AboveFilter <br> CylinderFilter | cable |
 | GroundDensity | GroundFilter <br> DensityFilter | cable |
 | GroundDensityAbove | GroundFilter <br> DensityFilter <br> AboveFilter | cable |
 | GroundDensityAboveCylinder | GroundFilter <br> DensityFilter <br> AboveFilter <br> CylinderFilter | cable |
 | GroundDensityCylinder | GroundFilter <br> DensityFilter <br> CylinderFilter | cable |
-| HeightWidthRansac | HeightFilter <br> WidthFilter <br> RansacFilter | cable |
-| HeightWidthHough3D | HeightFilter <br> WidthFilter <br> Hough3dFilter | cable |
-| HeightGrowth | HeightFilter <br> GrowthFilter | cable |
+| HeightWidthRansac | HeightFilter <br> WidthFilter <br> RansacFilter | cable | CABLE (initial section) |
+| HeightWidthHough3D | HeightFilter <br> WidthFilter <br> Hough3dFilter | cable | CABLE (initial section) |
+| HeightGrowth | HeightFilter <br> GrowthFilter | cable | CABLE (initial section) |
 | RailTrack | RailTrackFilter | rail track |
-| RailTrackWithSeed | WidthFilter <br> RailTrackFilter | rail track |
-
+| RailTrackWithSeed | WidthFilter <br> RailTrackFilter | rail track |  CABLE |
+| PoleDetection| WidthFilter <br> BandPassFilter <br> OutlierFilter <br> BandPassFilter <br> MinDistanceClusterFilter <br> CorrigateCentroidsFilter <br> RansacCylinderFilter | mast |  RAIL |
+| CantileverDetection | WidthFilter <br> HeightFilter <br> CantileverFilter | cantilever |  CABLE <br> POLE |
+| CableStaggerCheckingFirstClass | MinHeightFilter <br> RansacFilter <br> StaggerFilter | cable <br> (error checking) |
+| CableStaggerCheckingLowerClass | MinHeightFilter <br> RansacFilter <br> StaggerFilter | cable <br> (error checking) |
 
 Combined detection
 --------------
@@ -89,9 +94,9 @@ railroad_benchmark -a GroundErrorDetection
 
 Extended execution with precalculated files: (reduced runtime)
 ```bash
-railroad_benchmark -a StructureGaugeDetection -i cloud.laz --seed railtrack.laz 
-railroad_benchmark -a CableErrorDetection -i cloud.laz --seed railtrack.laz --seedcable cable.laz 
-railroad_benchmark -a GroundErrorDetection -i cloud.laz --seed railtrack.laz
+railroad_benchmark -a StructureGaugeDetection -i cloud.laz --seedpaths railtrack.laz --seedtypes RAIL
+railroad_benchmark -a CableErrorDetection -i cloud.laz --seedpaths railtrack.laz cable.laz --seedtypes RAIL CABLE
+railroad_benchmark -a GroundErrorDetection -i cloud.laz --seedpaths railtrack.laz --seedtypes RAIL
 ```
 
 
@@ -99,7 +104,8 @@ railroad_benchmark -a GroundErrorDetection -i cloud.laz --seed railtrack.laz
 | Option | Description | Mandatory |
 |--------|-------------|-----------|
 | `--input <path>` | input file path | YES |
-| `--seed <path>` | seed file path for cable detection | |
+| `--seedpaths <path1> ... <pathN>` | seed file paths | |
+| `--seedtypes <type1> ... <typeN>` | seed types for seed file paths (rail, pole, cable, ties) | |
 | `--merge <path>` | merge file path | |
 | `--output <path>` | output directory path (default: `./`) | |
 | `--algorithm-cable <alg>` | specify the algorithm pipe to execute for cable detection (default: `AngleAbove`) | |

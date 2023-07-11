@@ -19,7 +19,7 @@ class StructureGaugeFilter: public ErrorProcessor
 {
 public:
     StructureGaugeFilter(const std::string &name = "StructureGaugeFilter", bool regionNational=true)
-        : ErrorProcessor(name, true), _regionNational(regionNational) {}
+        : ErrorProcessor(SeedHelper::RAIL, name), _regionNational(regionNational) {}
 
 protected:
     PointCloudPtr getStructureCloud(pcl::PointXYZ middle, PointCloudPtr rotatedCloud);

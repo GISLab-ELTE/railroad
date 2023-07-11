@@ -26,6 +26,15 @@
 #include "filters/CableDistanceFilter.h"
 #include "filters/StructureGaugeFilter.h"
 #include "filters/VegetationDetectionFilter.h"
+#include "filters/BandPassFilter.h"
+#include "filters/EuclideanClusterFilter.h"
+#include "filters/MinDistanceClusterFilter.h"
+#include "filters/RansacCylinderFilter.h"
+#include "filters/CantileverFilter.h"
+#include "filters/MaxHeightFilter.h"
+#include "filters/MinHeightFilter.h"
+#include "filters/StaggerFilter.h"
+#include "filters/CorrigateCentroidsFilter.h"
 
 #include "piping/ProcessorPipeBunch.h"
 #include "piping/ProcessorPipe.h"
@@ -159,19 +168,19 @@ ProcessorPipeBunch *generateTestPipes()
             // Author: Friderika Mayer
         ->add("Ransac", LASClass::CABLE,
               (new ProcessorPipe())
-                  ->add(new HeightFilter())
-                  ->add(new WidthFilter())
+                  ->add(new HeightFilter(SeedHelper::CABLE))
+                  ->add(new WidthFilter(SeedHelper::CABLE))
                   ->add(new RansacFilter())
         )
         ->add("Hough", LASClass::CABLE,
               (new ProcessorPipe())
-                  ->add(new HeightFilter())
+                  ->add(new HeightFilter(SeedHelper::CABLE))
                   ->add(new Hough3dFilter())
         )
         ->add("Growth", LASClass::CABLE,
               (new ProcessorPipe())
-                  ->add(new HeightFilter())
-                  ->add(new GrowthFilter())
+                  ->add(new HeightFilter(SeedHelper::CABLE))
+                  ->add(new GrowthFilter(SeedHelper::CABLE))
         )
 
         // Author: Adalbert Demján
@@ -181,7 +190,7 @@ ProcessorPipeBunch *generateTestPipes()
         )
         ->add("RailTrackWithSeed", LASClass::RAIL,
               (new ProcessorPipe())
-                  ->add(new WidthFilter())
+                  ->add(new WidthFilter(SeedHelper::CABLE))
                   ->add(new RailTrackFilter())
         )
         ->add("CableErrorDetection", LASClass::CABLE,
@@ -189,7 +198,7 @@ ProcessorPipeBunch *generateTestPipes()
             (new ProcessorPipe())
                 ->add(new CableDistanceFilter())
             ,(new ProcessorPipe())
-                  ->add(new WidthFilter(2))
+                  ->add(new WidthFilter(SeedHelper::RAIL, 2))
                   ->add(new RailTrackFilter())
             ,(new ProcessorPipe())
                   ->add(new CutFilter(ImportantPartFinderProcessor::VORONOI))
@@ -203,7 +212,7 @@ ProcessorPipeBunch *generateTestPipes()
             (new ProcessorPipe())
                   ->add(new StructureGaugeFilter())
             ,(new ProcessorPipe())
-                   ->add(new WidthFilter(2))
+                   ->add(new WidthFilter(SeedHelper::RAIL, 2))
                    ->add(new RailTrackFilter())
             ,(new ProcessorPipe())
                    ->add(new CutFilter(ImportantPartFinderProcessor::VORONOI))
@@ -216,13 +225,48 @@ ProcessorPipeBunch *generateTestPipes()
             (new ProcessorPipe())
                   ->add(new VegetationDetectionFilter())
             ,(new ProcessorPipe())
-                   ->add(new WidthFilter(2))
+                   ->add(new WidthFilter(SeedHelper::RAIL, 2))
                    ->add(new RailTrackFilter())
             ,(new ProcessorPipe())
                    ->add(new CutFilter(ImportantPartFinderProcessor::VORONOI))
                    ->add(new AboveFilter())
                    }
         
+        )
+        ->add("PoleDetection", LASClass::POLE,
+              (new ProcessorPipe())
+                  ->add(new WidthFilter(SeedHelper::RAIL, 2.2F))   
+                  ->add(new BandPassFilter(SeedHelper::RAIL, 1.0, 3))
+                  ->add(new OutlierFilter(0.16, 150))
+                  ->add(new BandPassFilter(0.2))
+
+                  ->add(new MinDistanceClusterFilter(5.0))   
+                  ->add(new CorrigateCentroidsFilter(0.5))               
+                  ->add(new RansacCylinderFilter(0.22))
+        )
+        ->add("CantileverDetection", LASClass::CANTILEVER,
+              (new ProcessorPipe())
+                  ->add(new WidthFilter(SeedHelper::CABLE, 0.5))                  
+                  ->add(new HeightFilter(SeedHelper::CABLE))   
+                  ->add(new CantileverFilter())
+        )
+        ->add("CableStaggerCheckingFirstClass", LASClass::CABLE,
+              (new ProcessorPipe())
+                  ->add(new MinHeightFilter(0.18, false))
+                  ->add(new RansacFilter(1000, 0.08))                  
+                  ->add(new StaggerFilter(0.4, 0.01, 0.15))
+        )
+        ->add("CableStaggerCheckingLowerClass", LASClass::CABLE,
+              (new ProcessorPipe())
+                  ->add(new MinHeightFilter(0.18, false))
+                  ->add(new RansacFilter(1000, 0.08))                  
+                  ->add(new StaggerFilter(0.4, 0.03, 0.15))
+        )
+        ->add("CableStaggerCheckingDemo", LASClass::CABLE,
+              (new ProcessorPipe())
+                  ->add(new MinHeightFilter(0.18, false))
+                  ->add(new RansacFilter(1000, 0.08))                  
+                  ->add(new StaggerFilter(0.2, 0.01, 0.35))
         );
 
     return pipesHolder;

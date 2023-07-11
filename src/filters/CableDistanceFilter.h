@@ -20,7 +20,7 @@ class CableDistanceFilter: public ErrorProcessor
 {
 public:
     CableDistanceFilter(const std::string &name = "CableDistanceFilter", float maxDistance = 5.7, float maxCableWidth = 0.4)
-        : ErrorProcessor(name, true), _maxDistance(maxDistance), _maxCableWidth(maxCableWidth) {}
+        : ErrorProcessor(SeedHelper::CABLE, name), _maxDistance(maxDistance), _maxCableWidth(maxCableWidth) {}
     
 protected:
     PointCloudPtr getCableCloud(pcl::PointXYZ middle, PointCloudPtr rotatedCloud);

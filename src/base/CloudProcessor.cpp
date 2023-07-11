@@ -18,14 +18,6 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr CloudProcessor::execute()
 {
     LOG(debug) << "[" << _name << "] Started filter";
 
-    // check seeding
-    if (_seedRequired && !_seedCloud) {
-        LOG(error) << _name << " requires seed cloud, skipping algorithm.";
-        pcl::PointCloud<pcl::PointXYZ>::Ptr result(new pcl::PointCloud<pcl::PointXYZ>);
-        pcl::copyPointCloud(*_cloud, *result);
-        return result;
-    }
-
     startTimeMeasure();
     PointCloudPtr result = process();
     stopTimeMeasure();

@@ -14,6 +14,9 @@
 namespace railroad
 {
 
+pcl::PointXYZ globalDemean = pcl::PointXYZ();
+bool globalDemeanInitialized = false;
+
 LASreader *openLASReader(const std::string &filename, LASheader &header);
 
 LASheader readLASHeader(const std::string &filename)
@@ -44,15 +47,30 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr readLAS(
     cloud->resize(size);
 
     LOG(debug) << "Started reading input";
+
+    LOG(debug) << "XYZ offset from header: " << lasreader-> header.x_offset << ", "
+     << lasreader-> header.y_offset << ", " << lasreader-> header.z_offset;
+
+    LOG(debug) << "XYZ scale factor from header: " << lasreader-> header.x_scale_factor << ", "
+     << lasreader-> header.y_scale_factor << ", " << lasreader-> header.z_scale_factor;
+
     LASpoint *point;
     for (unsigned long count = 0; count < size; ++count) {
         lasreader->read_point();
         point = &lasreader->point;
 
+        if(!globalDemeanInitialized) {   
+            globalDemean.x = lasreader->header.x_offset;
+            globalDemean.y = lasreader->header.y_offset;
+            globalDemean.z = lasreader->header.z_offset;
+            globalDemeanInitialized = true;                  
+            LOG(debug) << "Demean initialized: " << globalDemean.x << " " << globalDemean.y << " " << globalDemean.z;     
+        }
+
         cloud->points[count] = pcl::PointXYZ(
-                point->X * lasreader->header.x_scale_factor + lasreader->header.x_offset,
-                point->Y * lasreader->header.y_scale_factor + lasreader->header.y_offset,
-                point->Z * lasreader->header.z_scale_factor + lasreader->header.z_offset);
+                point->X * lasreader->header.x_scale_factor + (lasreader->header.x_offset - globalDemean.x),
+                point->Y * lasreader->header.y_scale_factor + (lasreader->header.y_offset - globalDemean.y),
+                point->Z * lasreader->header.z_scale_factor + (lasreader->header.z_offset - globalDemean.z));
     }
     LOG(debug) << "Finished reading input";
 
@@ -78,6 +96,13 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr readLAS(
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
 
     LOG(debug) << "Started reading input";
+
+    LOG(debug) << "XYZ offset from header: " << lasreader-> header.x_offset << ", "
+     << lasreader-> header.y_offset << ", " << lasreader-> header.z_offset;
+
+    LOG(debug) << "XYZ scale factor from header: " << lasreader-> header.x_scale_factor << ", "
+     << lasreader-> header.y_scale_factor << ", " << lasreader-> header.z_scale_factor;
+     
     LASpoint *point;
     for (unsigned long count = 0; count < size; ++count) {
         lasreader->read_point();
@@ -85,10 +110,19 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr readLAS(
 
         if (point->X >= minX && point->Y <= maxX &&
             point->Y >= minY && point->Y <= maxY) {
+
+            if(!globalDemeanInitialized) {
+                globalDemean.x = lasreader->header.x_offset;
+                globalDemean.y = lasreader->header.y_offset;
+                globalDemean.z = lasreader->header.z_offset;
+                globalDemeanInitialized = true;                  
+                LOG(debug) << "Demean initialized: " << globalDemean.x << " " << globalDemean.y << " " << globalDemean.z;   
+            }           
+
             cloud->points.push_back(pcl::PointXYZ(
-                    point->X * lasreader->header.x_scale_factor + lasreader->header.x_offset,
-                    point->Y * lasreader->header.y_scale_factor + lasreader->header.y_offset,
-                    point->Z * lasreader->header.z_scale_factor + lasreader->header.z_offset));
+                    point->X * lasreader->header.x_scale_factor + (lasreader->header.x_offset - globalDemean.x),
+                    point->Y * lasreader->header.y_scale_factor + (lasreader->header.y_offset - globalDemean.y),
+                    point->Z * lasreader->header.z_scale_factor + (lasreader->header.z_offset - globalDemean.z)));
         }
     }
     LOG(debug) << "Finished reading input";
@@ -118,9 +152,9 @@ void writeLAS(
     LOG(debug) << "Started writing output";
     for (auto it = cloud->begin(); it != cloud->end(); ++it) {
         // Populate the LAS point
-        point.X = (it->x - header.x_offset) / header.x_scale_factor;
-        point.Y = (it->y - header.y_offset) / header.y_scale_factor;
-        point.Z = (it->z - header.z_offset) / header.z_scale_factor;
+        point.X = (it->x - (header.x_offset - globalDemean.x)) / header.x_scale_factor;
+        point.Y = (it->y - (header.y_offset - globalDemean.y)) / header.y_scale_factor;
+        point.Z = (it->z - (header.z_offset - globalDemean.z)) / header.z_scale_factor;
 
         // Write the LAS point
         laswriter->write_point(&point);
@@ -154,9 +188,9 @@ void writeLAS(
     LOG(debug) << "Started writing output";
     for (auto it = cloud->begin(); it != cloud->end(); ++it) {
         // Populate the LAS point
-        point.X = (it->x - header.x_offset) / header.x_scale_factor;
-        point.Y = (it->y - header.y_offset) / header.y_scale_factor;
-        point.Z = (it->z - header.z_offset) / header.z_scale_factor;
+        point.X = (it->x - (header.x_offset - globalDemean.x)) / header.x_scale_factor;
+        point.Y = (it->y - (header.y_offset - globalDemean.y)) / header.y_scale_factor;
+        point.Z = (it->z - (header.z_offset - globalDemean.z)) / header.z_scale_factor;
 
         // Set classification
         if (it->label > 0) {

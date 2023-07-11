@@ -19,11 +19,15 @@ class WidthFilter : public CloudProcessor
 {
 public:
     WidthFilter(float maxDistance = 1.2, const std::string &name = "WidthFilter")
-        : CloudProcessor(name, true), _maxDistance(maxDistance) {}
+        : CloudProcessor(name), _maxDistance(maxDistance) {}
+
+    WidthFilter(SeedHelper::SeedType _runOnSeed, float maxDistance = 1.2, const std::string &name = "WidthFilter")
+        : CloudProcessor(name), _maxDistance(maxDistance), _runOnSeed(_runOnSeed) {}
 
 protected:
     PointCloudPtr process() override;
     float _maxDistance;
+    SeedHelper::SeedType _runOnSeed = SeedHelper::SeedType::NONE;
 };
 } // railroad
 

@@ -31,7 +31,8 @@ ProcessorPipe::PointCloudPtr ProcessorPipe::process()
     int counter = 0;
     for (auto step : steps) {
         step->setInputCloud(workCloud);
-        step->setSeedCloud(_seedCloud);
+        step->setBaseCloud(_baseCloud);
+        step->setSeedHelper(_seedHelper);
         workCloud = step->execute();
 
         Projection projectionObj(workCloud, 0.25);

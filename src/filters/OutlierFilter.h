@@ -18,13 +18,14 @@ namespace railroad
 class OutlierFilter : public CloudProcessor
 {
 public:
-    double radius = 1.0;
-    int minNeighbors = 10;
 
-    OutlierFilter(const std::string &name = "OutlierFilter")
-        : CloudProcessor(name) {}
+    OutlierFilter(double radius = 1.0, int minNeighbors = 10, bool invert = false, const std::string &name = "OutlierFilter")
+        : CloudProcessor(name), radius(radius), minNeighbors(minNeighbors), invert(invert) {}
 
 protected:
+    double radius;
+    int minNeighbors;
+    bool invert;
     PointCloudPtr process();
 };
 

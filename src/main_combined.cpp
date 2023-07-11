@@ -52,7 +52,8 @@ enum ExitCodes
 int main(int argc, char *argv[])
 {
     std::string inputFile;
-    std::string seedFile;
+    std::vector<std::string> seedPaths;
+    std::vector<std::string> seedTypes;
     std::string outputDirectory = fs::current_path().string();
     std::string algorithmCable;
     std::string algorithmRail;
@@ -65,8 +66,10 @@ int main(int argc, char *argv[])
     desc.add_options()
         ("input,i", po::value<std::string>(&inputFile),
          "input file path")
-        ("seed", po::value<std::string>(&seedFile)->default_value(std::string()),
-         "seed file path for cable detection (used by some algorithms)")
+        ("seedpaths,sp", po::value<std::vector<std::string>>(&seedPaths)->multitoken(), 
+        "list of seed file paths (used by some algorithms)")
+        ("seedtypes,st", po::value<std::vector<std::string>>(&seedTypes)->multitoken(), 
+        "list of seed types for seed file paths (rail, pole, cable, ties)")
         ("output,o", po::value<std::string>(&outputDirectory)->default_value(outputDirectory),
          "output directory path (default: ./)")
         ("algorithm-cable", po::value<std::string>(&algorithmCable)->default_value("AngleAbove"),
@@ -89,6 +92,9 @@ int main(int argc, char *argv[])
 
     // Initialize the logger
     initLogger(logLevel);
+
+    // Initialize seedHelper
+    SeedHelper seedHelper(seedPaths, seedTypes);
 
     // Argument validation
     if (vm.count("help")) {
@@ -116,8 +122,8 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (seedFile.length() > 0 && !fs::exists(seedFile)) {
-        std::cerr << "The cable seed file does not exist." << std::endl;
+    if(!seedHelper.seedsAreValid()){
+        std::cerr << "Problem with supplied seeds, see above message for details." << std::endl;
         argumentError = true;
     }
 
@@ -162,10 +168,9 @@ int main(int argc, char *argv[])
     }
     LOG(info) << "Input file loaded, size: " << cloud->size();
 
-    // Read cable seed file
-    if (seedFile.length() > 0) {
-        seed = readLAS(seedFile);
-        LOG(info) << "Cable seed file loaded, size: " << seed->size();
+    // Read new style seed file list
+    if (seedHelper.getSeedFileCount() > 0) {
+        seedHelper.loadSeedFiles();
     }
 
     // Generate processing algorithms
@@ -196,10 +201,10 @@ int main(int argc, char *argv[])
     // Executing selected cable detection pipe
     auto pipeElement = pipes[0];
     algorithm = pipeElement.pipeVector.at(0);
-    algorithm->setInputCloud(cloud);
+    algorithm->setBaseCloud(cloud);
+    algorithm->setInputCloud(cloud);    
+    algorithm->setSeedHelper(seedHelper);
     LOG(info) << "Starting " << pipeElement.name << " case";
-    if (seedFile.length() > 0)
-        algorithm->setSeedCloud(seed);
     mkdir(pipeElement.name.c_str(), 0777);
     chdir(pipeElement.name.c_str());
     resultCable = algorithm->execute();
@@ -211,9 +216,12 @@ int main(int argc, char *argv[])
     // Executing selected rail track detection pipe
     pipeElement = pipes[1];    
     algorithm = pipeElement.pipeVector.at(0);
+    algorithm->setBaseCloud(cloud);
     algorithm->setInputCloud(cloud);
+    algorithm->setSeedHelper(seedHelper);
     LOG(info) << "Starting " << pipeElement.name << " case";
-    algorithm->setSeedCloud(resultCable); // use cable result as seed for rail track detection
+    seedHelper.setTempSeedCloud(resultCable);
+    algorithm->useTempSeed(true); // use cable result as seed for rail track detection
     mkdir(pipeElement.name.c_str(), 0777);
     chdir(pipeElement.name.c_str());
     resultRail = algorithm->execute();

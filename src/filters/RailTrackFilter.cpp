@@ -628,7 +628,12 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr RailTrackFilter::growRailPair(pair<RailSeedL
 pcl::PointCloud<pcl::PointXYZ>::Ptr RailTrackFilter::process()
 {
     stopTimeMeasure();
-    pcl::copyPointCloud(*_cloud, *originalCloud);
+
+    if(_useTempSeed)
+        originalCloud = _seedHelper.getTempSeedCloud();
+    else
+        pcl::copyPointCloud(*_cloud, *originalCloud);
+
     startTimeMeasure();
 
     if (originalCloud->size() == 0)

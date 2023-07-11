@@ -39,7 +39,9 @@ enum class LASClass : unsigned char
     WATER = 9_uc,
     RAIL = 10_uc,
     // 10-12 is ASPRS definition reserved
-    CABLE = 13_uc
+    CABLE = 13_uc,
+    POLE = 14_uc,
+    CANTILEVER = 15_uc
 };
 
 } // railroad

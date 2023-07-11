@@ -60,8 +60,10 @@ namespace railroad
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr ErrorProcessor::separateLines()
     {        
+        pcl::PointCloud<pcl::PointXYZ>::ConstPtr seedCloud = getSeedCloud();
+
         pcl::PointXYZ minPoint, maxPoint;
-        pcl::getMinMax3D( *_seedCloud, minPoint, maxPoint);
+        pcl::getMinMax3D(*seedCloud, minPoint, maxPoint);
         double angle = getAngle(
             pcl::PointXYZ ( 
                 maxPoint.x - minPoint.x, 
@@ -79,7 +81,7 @@ namespace railroad
         for (unsigned int i = 0; i < rotatedSeedCloud->size(); ++i) {
             pcl::PointXYZ point = rotatedSeedCloud->at(i);
             if ( (point.x >= middle) )
-                leftLineCloud->push_back(_seedCloud->at(i));
+                leftLineCloud->push_back(seedCloud->at(i));
         }
 
         return  leftLineCloud;
@@ -104,8 +106,8 @@ namespace railroad
         Eigen::Affine3f rotation = Eigen::Affine3f::Identity();
         rotation.rotate(Eigen::AngleAxisf(-angle, Eigen::Vector3f(0.0, 0.0, 1.0)));
         rotation.translation() << Eigen::Vector3f(0.0, 0.0, 0.0);
-        pcl::PointCloud<pcl::PointXYZ>::Ptr rotatedSeedCloud(new pcl::PointCloud<pcl::PointXYZ>);
-        pcl::transformPointCloud(*_seedCloud, *rotatedSeedCloud, rotation);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr rotatedSeedCloud(new pcl::PointCloud<pcl::PointXYZ>); 
+        pcl::transformPointCloud(*getSeedCloud(), *rotatedSeedCloud, rotation);
         return rotatedSeedCloud;
     }
 
@@ -117,6 +119,20 @@ namespace railroad
         pcl::PointCloud<pcl::PointXYZ>::Ptr rotatedCloud(new pcl::PointCloud<pcl::PointXYZ>);
         pcl::transformPointCloud(*_cloud, *rotatedCloud, rotation);
         return rotatedCloud;
+    }
+
+    pcl::PointCloud<pcl::PointXYZ>::ConstPtr ErrorProcessor::getSeedCloud()
+    {
+        pcl::PointCloud<pcl::PointXYZ>::ConstPtr seedCloudToUse;
+
+        if(_runOnSeed != SeedHelper::SeedType::NONE) {
+            seedCloudToUse = seedCloud(_runOnSeed);
+            LOG(debug) << "Using seed cloud specified in Pipes.h in filter";
+        } else {
+            LOG(error) << "Seed type not specified in Pipes.h for HeightFilter";
+        }
+
+        return seedCloudToUse;
     }
     
 } // railroad

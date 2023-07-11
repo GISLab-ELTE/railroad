@@ -21,8 +21,8 @@ namespace railroad
 class RansacFilter : public CloudProcessor
 {
 public:
-    RansacFilter(const std::string &name = "RansacFilter", int ransacMinSize = 6000)
-        : CloudProcessor(name), _ransacMinSize(ransacMinSize) {}
+    RansacFilter(int ransacMinSize = 6000, double threshold = 0.9, const std::string &name = "RansacFilter")
+        : CloudProcessor(name), _ransacMinSize(ransacMinSize), _threshold(threshold) {}
 
 protected:
     PointCloudPtr process() override;
@@ -31,6 +31,7 @@ private:
     static void compute(pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud, pcl::PointCloud<pcl::PointXYZ>::Ptr &temp,
                         const Eigen::Vector3f &axis, double threshold, Eigen::VectorXf &coeff);
     int _ransacMinSize;
+    double _threshold;
 };
 }  // railroad
 

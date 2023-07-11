@@ -17,11 +17,16 @@ namespace railroad
 class HeightFilter : public CloudProcessor
 {
 public:
-    HeightFilter(const std::string &name = "HeightFilter")
-        : CloudProcessor(name, true) {}
+    HeightFilter(const std::string &name = "HeightFilter", bool maxHeightLimit = false)
+        : CloudProcessor(name), maxHeightLimit(maxHeightLimit) {}
+
+    HeightFilter(SeedHelper::SeedType _runOnSeed, const std::string &name = "HeightFilter", bool maxHeightLimit = false)
+        : CloudProcessor(name), _runOnSeed(_runOnSeed), maxHeightLimit(maxHeightLimit) {}
 
 protected:
     PointCloudPtr process() override;
+    SeedHelper::SeedType _runOnSeed = SeedHelper::NONE;
+    bool maxHeightLimit = false; 
 };
 } // railroad
 

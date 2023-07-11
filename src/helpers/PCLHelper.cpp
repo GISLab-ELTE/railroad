@@ -11,9 +11,17 @@
 #include <cmath>
 
 #include <pcl/common/io.h>
+#include <pcl/common/distances.h>
+#include <pcl/common/pca.h>
 #include <pcl/io/pcd_io.h>
+#include <pcl/common/common.h>
+#include <pcl/common/centroid.h>
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics.hpp>
 
 #include "PCLHelper.h"
+
+using namespace boost::accumulators;
 
 std::ostream &operator<<(std::ostream &out, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
 {
@@ -216,6 +224,57 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr diffPointClouds(
 
     diffCloud->width = static_cast<uint32_t>(diffCloud->points.size());
     return diffCloud;
+}
+
+pcl::PointCloud<pcl::PointXYZ>::Ptr cutVerticalCylinder(
+    pcl::PointXYZ centre,
+    pcl::PointCloud<pcl::PointXYZ>::ConstPtr input,
+    double radius,
+    float minZ,
+    float maxZ)
+{   
+    pcl::PointCloud<pcl::PointXYZ>::Ptr withinCylinderPoints(new pcl::PointCloud<pcl::PointXYZ>);    
+
+    for(uint i = 0; i < input->points.size(); ++i) {
+        pcl::PointXYZ point = input->points.at(i);
+
+        double dist = pcl::euclideanDistance(centre, pcl::PointXYZ(point.x, point.y, centre.z));
+
+        if(dist < radius && point.z < maxZ && point.z > minZ) {
+            withinCylinderPoints->points.push_back(point);
+        }
+    }
+
+    return withinCylinderPoints;    
+}
+
+pcl::PointXYZ getCentroid(pcl::PointCloud<pcl::PointXYZ>::ConstPtr input)
+{
+    pcl::PointXYZ minPt, maxPt;
+
+    pcl::getMinMax3D(*input, minPt, maxPt);
+
+    accumulator_set<double, features<tag::mean>> xmean;
+    xmean(minPt.x);
+    xmean(maxPt.x);
+    accumulator_set<double, features<tag::mean>> ymean;
+    ymean(minPt.y);
+    ymean(maxPt.y);
+    accumulator_set<double, features<tag::mean>> zmean;
+    zmean(minPt.z);
+    zmean(maxPt.z);
+
+    return pcl::PointXYZ(mean(xmean), mean(ymean), mean(zmean));
+}
+
+Eigen::Vector3f getFirstEigenVector(pcl::PointCloud<pcl::PointXYZ>::ConstPtr input)
+{
+    pcl::PCA<pcl::PointXYZ> pca = new pcl::PCA<pcl::PointXYZ>;
+    pca.setInputCloud(input);
+
+    Eigen::Vector3f vector = pca.getEigenVectors().col(0);
+
+    return vector;
 }
 
 } // railroad

@@ -15,6 +15,8 @@
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 
+#include "../helpers/SeedHelper.h"
+
 namespace railroad
 {
 
@@ -24,12 +26,21 @@ public:
     typedef typename pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudPtr;
     typedef typename pcl::PointCloud<pcl::PointXYZ>::ConstPtr PointCloudConstPtr;
 
-    CloudProcessor(const std::string &name, bool seedRequired = false) :
-    _name(name), _seedRequired(seedRequired),
-    _numberOfFilteredPoints(0), _isClockRunning(false), _measuredTime(0.0f)
+    CloudProcessor(const std::string &name) :
+     _name(name), _numberOfFilteredPoints(0), _isClockRunning(false), _measuredTime(0.0f)
     {}
 
     virtual ~CloudProcessor() {}
+
+    PointCloudConstPtr baseCloud()
+    {
+        return _baseCloud;
+    }
+
+    void setBaseCloud(const PointCloudConstPtr &baseCloud)
+    {
+        _baseCloud = baseCloud;
+    }
 
     PointCloudConstPtr inputCloud()
     {
@@ -41,19 +52,14 @@ public:
         _cloud = cloud;
     }
 
-    PointCloudConstPtr seedCloud()
+    PointCloudConstPtr seedCloud(SeedHelper::SeedType seedType)
     {
-        return _seedCloud;
+        return _seedHelper.getSeedCloud(seedType);
     }
 
-    void setSeedCloud(const PointCloudConstPtr &seedCloud)
+    void setSeedHelper(const SeedHelper &seedHelper) 
     {
-        _seedCloud = seedCloud;
-    }
-
-    bool isSeedRequired()
-    {
-        return _seedRequired;
+        _seedHelper = seedHelper;
     }
 
     std::string name()
@@ -88,14 +94,19 @@ public:
         return _numberOfFilteredPoints;
     }
 
+    void useTempSeed(bool useTempSeed) {
+        _useTempSeed = useTempSeed;
+    }
+
     PointCloudPtr execute();
 
 protected:
     std::string _name;
     PointCloudConstPtr _cloud;
-    PointCloudConstPtr _seedCloud;
-    bool _seedRequired;
+    PointCloudConstPtr _baseCloud;
+    SeedHelper _seedHelper;
     unsigned int _numberOfFilteredPoints;
+    bool _useTempSeed = false;
 
     bool _isClockRunning;
     double _measuredTime;

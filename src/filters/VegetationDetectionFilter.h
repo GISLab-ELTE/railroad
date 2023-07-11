@@ -20,7 +20,7 @@ class VegetationDetectionFilter: public ErrorProcessor
 {
 public:
     VegetationDetectionFilter(const std::string &name = "VegetationDeFilter",  float trackWidth = 1.435/2)
-        : ErrorProcessor(name, true), _trackWidth(trackWidth) {}
+        : ErrorProcessor(SeedHelper::RAIL, name), _trackWidth(trackWidth) {}
 
 protected:
     PointCloudPtr getVegetationCloud(pcl::PointXYZ middle, PointCloudPtr rotatedCloud);

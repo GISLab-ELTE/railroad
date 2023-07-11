@@ -28,6 +28,14 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr GrowthFilter::process()
     pcl::PointCloud<pcl::PointXYZ>::Ptr projectedCloud(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::PointCloud<pcl::PointXYZ>::Ptr rotatedCloud(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::PointCloud<pcl::PointXYZ>::Ptr tempCloud(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::PointCloud<pcl::PointXYZ>::ConstPtr seedCloudToUse;
+
+    if(_runOnSeed != SeedHelper::SeedType::NONE) {
+        seedCloudToUse = seedCloud(_runOnSeed);
+        LOG(debug) << "Using seed cloud specified in Pipes.h in filter";
+    } else {
+        LOG(error) << "Seed type not specified in Pipes.h for HeightFilter";
+    }
 
     pcl::copyPointCloud(*_cloud, *cloud);
     startTimeMeasure();
@@ -36,7 +44,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr GrowthFilter::process()
     Eigen::VectorXf coeff;
 
     pcl::SampleConsensusModelParallelLine<pcl::PointXYZ>::Ptr model_p(
-        new pcl::SampleConsensusModelParallelLine<pcl::PointXYZ>(_seedCloud));
+        new pcl::SampleConsensusModelParallelLine<pcl::PointXYZ>(seedCloudToUse));
     model_p->setAxis(Eigen::Vector3f::UnitY());
     model_p->setEpsAngle(eps);
     std::vector<int> inliers;
@@ -56,7 +64,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr GrowthFilter::process()
     transform.rotate(Eigen::AngleAxisf(-angle, Eigen::Vector3f(0.0, 0.0, 1.0)));
     transform.translation() << Eigen::Vector3f(0.0, 0.0, 0.0);
 
-    pcl::transformPointCloud(*_seedCloud, *rotatedCloud, transform);
+    pcl::transformPointCloud(*seedCloudToUse, *rotatedCloud, transform);
 
     pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients());
     coefficients->values.resize(4);
@@ -103,7 +111,7 @@ pcl::PointCloud<pcl::PointXYZ>::Ptr GrowthFilter::process()
             if (!grids[i][j].empty()) {
                 indices.insert(indices.end(), grids[i][j].begin(), grids[i][j].end());
 
-                pcl::copyPointCloud(*_seedCloud, indices, *tempCloud);
+                pcl::copyPointCloud(*seedCloudToUse, indices, *tempCloud);
                 std::sort(tempCloud->points.begin(), tempCloud->points.end(),
                           [](const pcl::PointXYZ &p1, const pcl::PointXYZ &p2) { return p1.y < p2.y; });
                 seeds.push_back(calcSeed(tempCloud, tempCloud->size()*0.05));

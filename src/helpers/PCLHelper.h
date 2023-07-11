@@ -49,6 +49,19 @@ pcl::PointCloud<pcl::PointXYZL>::Ptr mergePointCloudsVisual(
     pcl::PointCloud<pcl::PointXYZ>::ConstPtr result,
     LASClass classification);
 
+pcl::PointCloud<pcl::PointXYZ>::Ptr cutVerticalCylinder(
+    pcl::PointXYZ centre,
+    pcl::PointCloud<pcl::PointXYZ>::ConstPtr input,
+    double radius,
+    float minZ,
+    float maxZ);
+
+pcl::PointXYZ getCentroid(
+    pcl::PointCloud<pcl::PointXYZ>::ConstPtr input
+);
+
+Eigen::Vector3f getFirstEigenVector(pcl::PointCloud<pcl::PointXYZ>::ConstPtr input);
+
 } // railroad
 
 #endif //RAILROAD_PCLHELPER
