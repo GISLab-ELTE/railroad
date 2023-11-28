@@ -28,6 +28,9 @@ Sample results
 Combined cable and rail detection result:  
 ![Combined cable and rail detection result](figs/result_combined.png)
 
+Track fragmentation cutlines with various algorithms:  
+![Combined cable and rail detection result](figs/result_fragmentation.png)
+
 
 Publications
 ------------

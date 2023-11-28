@@ -10,16 +10,16 @@
 #ifndef RAILROAD_EUCLIDEANCLUSTERFILTER_H
 #define RAILROAD_EUCLIDEANCLUSTERFILTER_H
 
-#include "../base/CloudProcessor.h"
+#include "../base/SingleResultCloudProcessor.h"
 
 namespace railroad
 {
 
-class EuclideanClusterFilter : public CloudProcessor
+class EuclideanClusterFilter : public SingleResultCloudProcessor
 {
 public:
     EuclideanClusterFilter(double clusterTolerance = 0.1, double minClusterSize = 10, double maxClusterSize = 2000, const std::string &name = "EucledianClusterFilter")
-        : CloudProcessor(name), clusterTolerance(clusterTolerance), minClusterSize(minClusterSize), maxClusterSize(maxClusterSize) {}
+        : SingleResultCloudProcessor(name), clusterTolerance(clusterTolerance), minClusterSize(minClusterSize), maxClusterSize(maxClusterSize) {}
 
 protected:
     double clusterTolerance;

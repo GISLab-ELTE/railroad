@@ -74,8 +74,8 @@ railroad_benchmark -a PoleDetection -i cloud.laz --seedpaths railtrack.laz --see
 | StructureGaugeDetection | StructureGaugeFilter | low vegetation | RAIL |
 | CableErrorDetection | CableDetectionFilter | cable | RAIL <br> CABLE |
 | GroundErrorDetection | VegetationDetectionFilter | ground | RAIL |
-| CableStaggerCheckingFirstClass | MinHeightFilter <br> RansacFilter <br> StaggerFilter | cable |
-| CableStaggerCheckingLowerClass | MinHeightFilter <br> RansacFilter <br> StaggerFilter | cable |
+| CableStaggerCheckingFirstClass | MinHeightFilter <br> RansacFilter <br> StaggerFilter | cable | RAIL |
+| CableStaggerCheckingLowerClass | MinHeightFilter <br> RansacFilter <br> StaggerFilter | cable | RAIL|
 
 
 Sample execution:
@@ -83,12 +83,13 @@ Sample execution:
 ```bash
 railroad_benchmark -a CableErrorDetection -i cloud.laz --seedpaths railtrack.laz cable.laz --seedtypes RAIL CABLE
 ```
+*Remark*: the difference between the two CableStaggerChecking pipelines is the threshold for the maximum stagger (0.41 meters for first class railways vs 0.43 meters for lower class)
 
 
 Combined detection
 --------------
 
-The `railroad_combined` executable can be used perform combined railroad infrastructure detection (both cable and railtrack) with a given algorithm pair.
+The `railroad_combined` executable can be used to perform combined railroad infrastructure detection (both cable and railtrack) with a given algorithm pair.
 Sample execution:
 ```bash
 railroad_combined --input cloud.laz
@@ -108,3 +109,26 @@ railroad_combined --input cloud.laz
 | `--help` | produce help message | |
 
 *Remark*: the result of the cable detection will be automatically used as the seed for rail track detection.
+
+
+Fragmentation
+--------------
+
+The `railroad_fragment` executable can be used to perform fragmentation of a longer track segment to produce smaller (mostly) straight segments.
+Sample execution:
+```bash
+railroad_fragment --input cloud.laz
+```
+
+### Allowed options
+| Option | Description | Mandatory |
+|--------|-------------|-----------|
+| `--input <path>` | input file path | YES |
+| `--output <path>` | output directory path (default: `./`) | |
+| `--algorithm <alg>` | specify the filter to execute for fragmentation <br> Possible values: `ThresholdContour` `CannyHough`, `GeneralizedHough` | |
+| `--angle <N>` | the max angle of curvation to accept before fragmentation occurs (default: `10`) | |
+| `--size <N>` | maximum size of point cloud to process | |
+| `--boundaries <minX>, <minY>, <maxX>, <maxY>` | boundaries to process | |
+| `--usePCDAsCache` | create and use PCD file of LAZ as cache | |
+| `--loglevel <level>` | log level (trace, debug, info, warning, error, fatal; default: info) | |
+| `--help` | produce help message | |

@@ -10,15 +10,15 @@
 #ifndef RAILROAD_HOUGH3DFILTER_H
 #define RAILROAD_HOUGH3DFILTER_H
 
-#include "../base/CloudProcessor.h"
+#include "../base/SingleResultCloudProcessor.h"
 
 namespace railroad
 {
-class Hough3dFilter : public CloudProcessor
+class Hough3dFilter : public SingleResultCloudProcessor
 {
 public:
     Hough3dFilter(const std::string &name = "Hough3dFilter", int houghLineCount = 5)
-        : CloudProcessor(name), _houghLineCount(houghLineCount) {}
+        : SingleResultCloudProcessor(name), _houghLineCount(houghLineCount) {}
 
 protected:
     PointCloudPtr process() override;

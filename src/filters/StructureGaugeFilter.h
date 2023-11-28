@@ -10,7 +10,7 @@
 #ifndef RAILROAD_STRUCTUREGAUGEFILTER_H
 #define RAILROAD_STRUCTUREGAUGEFILTER_H
 
-#include "../base/CloudProcessor.h"
+#include "../base/SingleResultCloudProcessor.h"
 #include "../base/ErrorProcessor.h"
 
 namespace railroad

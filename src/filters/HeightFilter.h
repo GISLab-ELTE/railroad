@@ -10,18 +10,18 @@
 #ifndef RAILROAD_HEIGHTFILTER_H
 #define RAILROAD_HEIGHTFILTER_H
 
-#include "../base/CloudProcessor.h"
+#include "../base/SingleResultCloudProcessor.h"
 
 namespace railroad
 {
-class HeightFilter : public CloudProcessor
+class HeightFilter : public SingleResultCloudProcessor
 {
 public:
     HeightFilter(const std::string &name = "HeightFilter", bool maxHeightLimit = false)
-        : CloudProcessor(name), maxHeightLimit(maxHeightLimit) {}
+        : SingleResultCloudProcessor(name), maxHeightLimit(maxHeightLimit) {}
 
     HeightFilter(SeedHelper::SeedType _runOnSeed, const std::string &name = "HeightFilter", bool maxHeightLimit = false)
-        : CloudProcessor(name), _runOnSeed(_runOnSeed), maxHeightLimit(maxHeightLimit) {}
+        : SingleResultCloudProcessor(name), _runOnSeed(_runOnSeed), maxHeightLimit(maxHeightLimit) {}
 
 protected:
     PointCloudPtr process() override;

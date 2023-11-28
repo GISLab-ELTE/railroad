@@ -11,15 +11,15 @@
 #ifndef RAILROAD_ERRORPROCESSOR_H
 #define RAILROAD_ERRORPROCESSOR_H
 
-#include "../base/CloudProcessor.h"
+#include "../base/SingleResultCloudProcessor.h"
 
 namespace railroad
 {
 
-class ErrorProcessor: public CloudProcessor
+class ErrorProcessor: public SingleResultCloudProcessor
 {
 public:
-    ErrorProcessor(SeedHelper::SeedType _runOnSeed, const std::string &name) : CloudProcessor(name), _runOnSeed(_runOnSeed) {};     
+    ErrorProcessor(SeedHelper::SeedType _runOnSeed, const std::string &name) : SingleResultCloudProcessor(name), _runOnSeed(_runOnSeed) {};
     virtual ~ErrorProcessor() {}
 protected:
     double getAngle(const pcl::PointXYZ vector1, const pcl::PointXYZ vector2);
@@ -32,4 +32,4 @@ protected:
     SeedHelper::SeedType _runOnSeed = SeedHelper::NONE;
 };
 }
-#endif //RAILROAD_CLOUDPROCESSOR_H
+#endif //RAILROAD_ERRORPROCESSOR_H

@@ -11,19 +11,19 @@
 #define RAILROAD_BANDPASSFILTER_H
 
 #include <cmath>
-#include "../base/CloudProcessor.h"
+#include "../base/SingleResultCloudProcessor.h"
 
 namespace railroad
 {
 
-class BandPassFilter : public CloudProcessor
+class BandPassFilter : public SingleResultCloudProcessor
 {
 public:
     BandPassFilter(double height = 2.0, double offset = NAN, const std::string &name = "BandPassFilter")
-        : CloudProcessor(name), height(height/2), offset(offset) {}
+        : SingleResultCloudProcessor(name), height(height / 2), offset(offset) {}
 
     BandPassFilter(SeedHelper::SeedType _runOnSeed, double height = 2.0, double offset = NAN, const std::string &name = "BandPassFilter")
-        : CloudProcessor(name), height(height/2), offset(offset), _runOnSeed(_runOnSeed) {}
+        : SingleResultCloudProcessor(name), height(height / 2), offset(offset), _runOnSeed(_runOnSeed) {}
 
 protected:
     double height;

@@ -12,17 +12,17 @@
 
 #include <string>
 
-#include "../base/CloudProcessor.h"
+#include "../base/SingleResultCloudProcessor.h"
 #include "../dim2/ImportantPartFinderProcessor.h"
 
 namespace railroad
 {
 
-class CutFilter : public CloudProcessor
+class CutFilter : public SingleResultCloudProcessor
 {
 public:
     CutFilter(ImportantPartFinderProcessor::Mode mode, const std::string &name = "CutFilter")
-        : CloudProcessor(name), mode(mode) {}
+        : SingleResultCloudProcessor(name), mode(mode) {}
 
 protected:
     ImportantPartFinderProcessor::Mode mode;

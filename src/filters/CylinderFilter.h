@@ -10,17 +10,17 @@
 #ifndef RAILROAD_CYLINDERFINDER_H
 #define RAILROAD_CYLINDERFINDER_H
 
-#include "../base/CloudProcessor.h"
+#include "../base/SingleResultCloudProcessor.h"
 
 namespace railroad
 {
 
-class CylinderFilter : public CloudProcessor
+class CylinderFilter : public SingleResultCloudProcessor
 {
 public:
     CylinderFilter(double normalDistanceWeight = 0.5, double distanceThreshold = 2, double maximumRadius = 2,
                    const std::string &name = "CylinderFilter")
-        : CloudProcessor(name), normalDistanceWeight(normalDistanceWeight), distanceThreshold(distanceThreshold),
+        : SingleResultCloudProcessor(name), normalDistanceWeight(normalDistanceWeight), distanceThreshold(distanceThreshold),
           maximumRadius(maximumRadius) {}
 
 protected:

@@ -122,4 +122,43 @@ Projection::grepPointCloud(pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud, cv::M
     return result;
 }
 
+std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr>
+Projection::fragmentPointCloud(pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud, cv::Mat fragmentationPoints)
+{
+    std::vector<int> fragmentationCoordinates;
+
+    for (int i = 0; i < std::max(fragmentationPoints.rows, fragmentationPoints.cols); i++) {
+        if (fragmentationPoints.rows >= fragmentationPoints.cols) {
+            if (fragmentationPoints.at<uchar>(i, 0) == 255) {
+                fragmentationCoordinates.push_back(i);
+            }
+        } else {
+            if (fragmentationPoints.at<uchar>(0, i) == 255) {
+                fragmentationCoordinates.push_back(i);
+            }
+        }
+    }
+
+    std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> result(fragmentationCoordinates.size() + 1);
+
+    for (unsigned int i = 0; i < result.size(); i++) {
+        result[i] = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>);
+    }
+
+    for (pcl::PointXYZ const& point : cloud->points) {
+        cv::Vec2i posInMatrix = projectPoint(point);
+
+        int posInMtxIndex = fragmentationPoints.rows > fragmentationPoints.cols ? 1 : 0;
+
+        unsigned int j = 0;
+        while (j < fragmentationCoordinates.size() && posInMatrix[posInMtxIndex] > fragmentationCoordinates[j]) {
+            j++;
+        }
+
+        result[j]->push_back(point);
+    }
+
+    return result;
+}
+
 } // railroad

@@ -51,7 +51,9 @@ find_package(OpenCV 4 REQUIRED)
 link_libraries(${OpenCV_LIBS})
 
 add_library(railroad SHARED
-    base/CloudProcessor.cpp base/CloudProcessor.h
+    base/CloudProcessor.h
+    base/SingleResultCloudProcessor.cpp base/SingleResultCloudProcessor.h
+    base/MultiResultCloudProcessor.cpp base/MultiResultCloudProcessor.h
     base/ErrorProcessor.cpp base/ErrorProcessor.h
     filters/DensityFilter.cpp filters/DensityFilter.h
     filters/AboveFilter.cpp filters/AboveFilter.h
@@ -78,10 +80,12 @@ add_library(railroad SHARED
     filters/MinHeightFilter.cpp filters/MinHeightFilter.h
     filters/StaggerFilter.cpp filters/StaggerFilter.h
     filters/CorrigateCentroidsFilter.cpp filters/CorrigateCentroidsFilter.h
+    filters/FragmentationFilter.cpp filters/FragmentationFilter.h
     dim2/ImportantPartFinderProcessor.cpp dim2/ImportantPartFinderProcessor.h
     dim2/Dim2Helper.cpp dim2/Dim2Helper.h
     dim2/TrackFinderProcessor.cpp dim2/TrackFinderProcessor.h
     dim2/Projection.cpp dim2/Projection.h
+    dim2/StraightTrackPartFinderProcessor.cpp dim2/StraightTrackPartFinderProcessor.h
     helpers/PCLHelper.cpp helpers/PCLHelper.h
     helpers/LogHelper.cpp helpers/LogHelper.h
     helpers/BenchmarkHelper.cpp helpers/BenchmarkHelper.h
@@ -99,6 +103,9 @@ add_executable(railroad_benchmark
 add_executable(railroad_combined
     main_combined.cpp
     Results.h Pipes.h)
+    
+add_executable(railroad_fragment
+    main_fragment.cpp)
 
-install(TARGETS railroad_benchmark railroad_combined railroad
+install(TARGETS railroad_benchmark railroad_combined railroad_fragment railroad
     DESTINATION ${CMAKE_INSTALL_PREFIX})

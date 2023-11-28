@@ -16,7 +16,7 @@
 namespace railroad
 {
 
-ProcessorPipe *ProcessorPipe::add(CloudProcessor *step)
+ProcessorPipe *ProcessorPipe::add(SingleResultCloudProcessor *step)
 {
     steps.push_back(step);
     return this;
@@ -54,7 +54,7 @@ ProcessorPipe::~ProcessorPipe()
     }
 }
 
-ProcessorPipe::ProcessorPipe() : CloudProcessor("Pipe")
+ProcessorPipe::ProcessorPipe() : SingleResultCloudProcessor("Pipe")
 {
 
 }

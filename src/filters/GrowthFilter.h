@@ -10,15 +10,15 @@
 #ifndef RAILROAD_GROWTHFILTER_H
 #define RAILROAD_GROWTHFILTER_H
 
-#include "../base/CloudProcessor.h"
+#include "../base/SingleResultCloudProcessor.h"
 
 namespace railroad
 {
-class GrowthFilter : public CloudProcessor
+class GrowthFilter : public SingleResultCloudProcessor
 {
 public:
     GrowthFilter(SeedHelper::SeedType _runOnSeed, const std::string &name = "GrowthFilter", float seedBoxLength = 0.4f, int seedGridCount = 4, int seedMaxNumberOfPoints = 110)
-        : CloudProcessor(name),  _runOnSeed(_runOnSeed), _seedBoxLength(seedBoxLength), _seedGridCount(seedGridCount), _seedMaxNumberOfPoints(seedMaxNumberOfPoints) {}
+        : SingleResultCloudProcessor(name), _runOnSeed(_runOnSeed), _seedBoxLength(seedBoxLength), _seedGridCount(seedGridCount), _seedMaxNumberOfPoints(seedMaxNumberOfPoints) {}
 
 protected:
     PointCloudPtr process() override;

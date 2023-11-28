@@ -12,19 +12,19 @@
 
 #include <opencv2/core.hpp>
 
-#include "../base/CloudProcessor.h"
+#include "../base/SingleResultCloudProcessor.h"
 
 namespace railroad
 {
 
-class DensityFilter : public CloudProcessor
+class DensityFilter : public SingleResultCloudProcessor
 {
 public:
     float resolution = 0.3f;
     int threshold = 5;
 
     DensityFilter(const std::string &name = "DensityFilter")
-        : CloudProcessor(name) {}
+        : SingleResultCloudProcessor(name) {}
 
 protected:
     PointCloudPtr process();

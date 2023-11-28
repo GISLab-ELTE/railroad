@@ -12,16 +12,16 @@
 
 #include <string>
 
-#include "../base/CloudProcessor.h"
+#include "../base/SingleResultCloudProcessor.h"
 
 namespace railroad
 {
 
-class RansacCylinderFilter : public CloudProcessor
+class RansacCylinderFilter : public SingleResultCloudProcessor
 {
 public:
     RansacCylinderFilter(double normalDistanceWeight = 0.22,const std::string &name = "RansacCylinderFilter")
-        : CloudProcessor(name), _normalDistanceWeight(normalDistanceWeight) {}
+        : SingleResultCloudProcessor(name), _normalDistanceWeight(normalDistanceWeight) {}
 
 protected:
     PointCloudPtr process();

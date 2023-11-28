@@ -13,17 +13,17 @@
 #include <vector>
 #include <map>
 
-#include "../base/CloudProcessor.h"
+#include "../base/SingleResultCloudProcessor.h"
 
 namespace railroad
 {
 
-class ProcessorPipe : public CloudProcessor
+class ProcessorPipe : public SingleResultCloudProcessor
 {
 public:
     ProcessorPipe();
 
-    ProcessorPipe *add(CloudProcessor *step);
+    ProcessorPipe *add(SingleResultCloudProcessor *step);
 
     PointCloudPtr process();
 
@@ -32,7 +32,7 @@ public:
     std::map<std::string, double> getTimeResults() const;
     std::map<std::string, int> getFilteredPointsResults() const;
 protected:
-    std::vector<CloudProcessor *> steps;
+    std::vector<SingleResultCloudProcessor *> steps;
 };
 
 } // railroad

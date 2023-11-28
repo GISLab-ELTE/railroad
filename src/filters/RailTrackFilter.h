@@ -16,7 +16,7 @@
 
 #include <opencv2/core.hpp>
 
-#include "../base/CloudProcessor.h"
+#include "../base/SingleResultCloudProcessor.h"
 
 namespace railroad
 {
@@ -69,11 +69,11 @@ private:
     pcl::PointCloud<pcl::PointXYZ>::Ptr linePoints;
 };
 
-class RailTrackFilter : public CloudProcessor
+class RailTrackFilter : public SingleResultCloudProcessor
 {
 public:
     RailTrackFilter(float gridCellSize = 0.25, const std::string &name = "RailTrackFilter")
-        : CloudProcessor(name), gridCellSize(gridCellSize), classificationCut(5), start(0), prevItNum(3),
+        : SingleResultCloudProcessor(name), gridCellSize(gridCellSize), classificationCut(5), start(0), prevItNum(3),
           growSize(1), cloudOctree(0.25f), originalCloud(new pcl::PointCloud<pcl::PointXYZ>)
     {
     }

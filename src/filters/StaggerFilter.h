@@ -11,16 +11,16 @@
 #define RAILROAD_STAGGERFILTER_H
 
 #include <cmath>
-#include "../base/CloudProcessor.h"
+#include "../base/SingleResultCloudProcessor.h"
 
 namespace railroad
 {
 
-class StaggerFilter : public CloudProcessor
+class StaggerFilter : public SingleResultCloudProcessor
 {
 public:
     StaggerFilter(double maxStaggerLimit = 0.3, double staggerThreshold = 0.01, double minStaggerLimit = 0.1, const std::string &name = "StaggerFilter")
-        : CloudProcessor(name), maxStaggerLimit(maxStaggerLimit), minStaggerLimit(minStaggerLimit), staggerThreshold(staggerThreshold) {}
+        : SingleResultCloudProcessor(name), maxStaggerLimit(maxStaggerLimit), minStaggerLimit(minStaggerLimit), staggerThreshold(staggerThreshold) {}
 
 protected:
     PointCloudPtr process();

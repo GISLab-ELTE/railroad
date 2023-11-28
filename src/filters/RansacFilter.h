@@ -14,15 +14,15 @@
 
 #include <opencv2/core.hpp>
 
-#include "../base/CloudProcessor.h"
+#include "../base/SingleResultCloudProcessor.h"
 
 namespace railroad
 {
-class RansacFilter : public CloudProcessor
+class RansacFilter : public SingleResultCloudProcessor
 {
 public:
     RansacFilter(int ransacMinSize = 6000, double threshold = 0.9, const std::string &name = "RansacFilter")
-        : CloudProcessor(name), _ransacMinSize(ransacMinSize), _threshold(threshold) {}
+        : SingleResultCloudProcessor(name), _ransacMinSize(ransacMinSize), _threshold(threshold) {}
 
 protected:
     PointCloudPtr process() override;

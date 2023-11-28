@@ -11,16 +11,16 @@
 #define RAILROAD_CANTILEVERFILTER_H
 
 #include <cmath>
-#include "../base/CloudProcessor.h"
+#include "../base/SingleResultCloudProcessor.h"
 
 namespace railroad
 {
 
-class CantileverFilter : public CloudProcessor
+class CantileverFilter : public SingleResultCloudProcessor
 {
 public:
     CantileverFilter(const std::string &name = "CantileverFilter")
-        : CloudProcessor(name) {}
+        : SingleResultCloudProcessor(name) {}
 
 protected:
     PointCloudPtr process();

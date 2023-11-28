@@ -11,19 +11,19 @@
 #define RAILROAD_MAXHEIGHTFILTER_H
 
 #include <cmath>
-#include "../base/CloudProcessor.h"
+#include "../base/SingleResultCloudProcessor.h"
 
 namespace railroad
 {
 
-class MaxHeightFilter : public CloudProcessor
+class MaxHeightFilter : public SingleResultCloudProcessor
 {
 public:
     MaxHeightFilter(double offset = 0.0, bool keepBelow = true, const std::string &name = "MaxHeightFilter")
-        : CloudProcessor(name), offset(offset), keepBelow(keepBelow) {}
+        : SingleResultCloudProcessor(name), offset(offset), keepBelow(keepBelow) {}
 
     MaxHeightFilter(SeedHelper::SeedType _runOnSeed, double offset = 0.0, bool keepBelow = true, const std::string &name = "MaxHeightFilter")
-        : CloudProcessor(name), offset(offset), keepBelow(keepBelow), _runOnSeed(_runOnSeed) {}
+        : SingleResultCloudProcessor(name), offset(offset), keepBelow(keepBelow), _runOnSeed(_runOnSeed) {}
 
 protected:
     double offset;

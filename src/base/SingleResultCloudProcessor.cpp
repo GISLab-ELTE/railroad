@@ -1,6 +1,6 @@
 /*
  * BSD 3-Clause License
- * Copyright (c) 2018-2020, Máté Cserép & Péter Hudoba
+ * Copyright (c) 2018-2023, Máté Cserép & Péter Hudoba
  * All rights reserved.
  *
  * You may obtain a copy of the License at
@@ -9,12 +9,12 @@
 
 #include <pcl/common/io.h>
 
-#include "CloudProcessor.h"
+#include "SingleResultCloudProcessor.h"
 #include "../helpers/LogHelper.h"
 
 namespace railroad
 {
-pcl::PointCloud<pcl::PointXYZ>::Ptr CloudProcessor::execute()
+pcl::PointCloud<pcl::PointXYZ>::Ptr SingleResultCloudProcessor::execute()
 {
     LOG(debug) << "[" << _name << "] Started filter";
 

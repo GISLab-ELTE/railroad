@@ -10,19 +10,19 @@
 #ifndef RAILROAD_MINDISTANCECLUSTERFILTER_H
 #define RAILROAD_MINDISTANCECLUSTERFILTER_H
 
-#include "../base/CloudProcessor.h"
+#include "../base/SingleResultCloudProcessor.h"
 
 namespace railroad
 {
 
-class MinDistanceClusterFilter : public CloudProcessor
+class MinDistanceClusterFilter : public SingleResultCloudProcessor
 {
 public:
     MinDistanceClusterFilter(double minDistance = 5.0, const std::string &name = "MinDistanceClusterFilter")
-        : CloudProcessor(name) {}
+        : SingleResultCloudProcessor(name) {}
 
     MinDistanceClusterFilter(SeedHelper::SeedType _runOnSeed, double minDistance = 5.0, const std::string &name = "MinDistanceClusterFilter")
-        : CloudProcessor(name), _runOnSeed(_runOnSeed) {}
+        : SingleResultCloudProcessor(name), _runOnSeed(_runOnSeed) {}
 
 protected:
     double minDistance;

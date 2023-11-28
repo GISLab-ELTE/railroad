@@ -10,17 +10,17 @@
 #ifndef RAILROAD_OUTLIERFILTER_H
 #define RAILROAD_OUTLIERFILTER_H
 
-#include "../base/CloudProcessor.h"
+#include "../base/SingleResultCloudProcessor.h"
 
 namespace railroad
 {
 
-class OutlierFilter : public CloudProcessor
+class OutlierFilter : public SingleResultCloudProcessor
 {
 public:
 
     OutlierFilter(double radius = 1.0, int minNeighbors = 10, bool invert = false, const std::string &name = "OutlierFilter")
-        : CloudProcessor(name), radius(radius), minNeighbors(minNeighbors), invert(invert) {}
+        : SingleResultCloudProcessor(name), radius(radius), minNeighbors(minNeighbors), invert(invert) {}
 
 protected:
     double radius;

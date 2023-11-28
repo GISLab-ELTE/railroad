@@ -10,16 +10,16 @@
 #ifndef RAILROAD_LIMITERFILTER_H
 #define RAILROAD_LIMITERFILTER_H
 
-#include "../base/CloudProcessor.h"
+#include "../base/SingleResultCloudProcessor.h"
 
 namespace railroad
 {
 
-class LimiterFilter : public CloudProcessor
+class LimiterFilter : public SingleResultCloudProcessor
 {
 public:
     LimiterFilter(const std::string &name = "LimiterFilter")
-        : CloudProcessor(name) {}
+        : SingleResultCloudProcessor(name) {}
 
 protected:
     PointCloudPtr process();

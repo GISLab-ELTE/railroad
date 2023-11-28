@@ -10,18 +10,18 @@
 #ifndef RAILROAD_GROUNDFILTER_H
 #define RAILROAD_GROUNDFILTER_H
 
-#include "../base/CloudProcessor.h"
+#include "../base/SingleResultCloudProcessor.h"
 
 namespace railroad
 {
 
-class GroundFilter : public CloudProcessor
+class GroundFilter : public SingleResultCloudProcessor
 {
 public:
     float threshold = 5.0f;
 
     GroundFilter(const std::string &name = "GroundFilter")
-        : CloudProcessor(name) {}
+        : SingleResultCloudProcessor(name) {}
 
 protected:
     PointCloudPtr process();

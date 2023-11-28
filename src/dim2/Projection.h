@@ -49,6 +49,10 @@ public:
                        const pcl::PointXYZ &point) -> bool {
                        return true;
                    });
+
+    std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr>
+    fragmentPointCloud(pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud, cv::Mat fragmentationPoints);
+
 protected:
     pcl::PointXYZ minPt, maxPt;
     pcl::PointXYZ spaceSize;

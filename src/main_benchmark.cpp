@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
     fs::current_path(outputDirectory);
 
     // Define result variables
-    CloudProcessor *algorithm;
+    SingleResultCloudProcessor *algorithm;
     BenchmarkHelper benchmark;
     std::string resultFile;
     std::string visualFile;

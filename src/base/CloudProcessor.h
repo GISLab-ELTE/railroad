@@ -1,6 +1,6 @@
 /*
  * BSD 3-Clause License
- * Copyright (c) 2018-2020, Máté Cserép & Péter Hudoba
+ * Copyright (c) 2018-2023, Máté Cserép & Péter Hudoba
  * All rights reserved.
  *
  * You may obtain a copy of the License at
@@ -25,12 +25,6 @@ class CloudProcessor
 public:
     typedef typename pcl::PointCloud<pcl::PointXYZ>::Ptr PointCloudPtr;
     typedef typename pcl::PointCloud<pcl::PointXYZ>::ConstPtr PointCloudConstPtr;
-
-    CloudProcessor(const std::string &name) :
-     _name(name), _numberOfFilteredPoints(0), _isClockRunning(false), _measuredTime(0.0f)
-    {}
-
-    virtual ~CloudProcessor() {}
 
     PointCloudConstPtr baseCloud()
     {
@@ -94,8 +88,6 @@ public:
         return _numberOfFilteredPoints;
     }
 
-    PointCloudPtr execute();
-
 protected:
     std::string _name;
     PointCloudConstPtr _cloud;
@@ -107,7 +99,11 @@ protected:
     double _measuredTime;
     std::clock_t _startClock;
 
-    virtual PointCloudPtr process() = 0;
+    CloudProcessor(const std::string &name) :
+        _name(name), _numberOfFilteredPoints(0), _isClockRunning(false), _measuredTime(0.0f)
+    {}
+
+    virtual ~CloudProcessor() {}
 };
 
 } // railroad

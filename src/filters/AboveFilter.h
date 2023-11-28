@@ -12,16 +12,16 @@
 
 #include <opencv2/core.hpp>
 
-#include "../base/CloudProcessor.h"
+#include "../base/SingleResultCloudProcessor.h"
 
 namespace railroad
 {
 
-class AboveFilter : public CloudProcessor
+class AboveFilter : public SingleResultCloudProcessor
 {
 public:
     AboveFilter(float gridCellSize = 0.25, const std::string &name = "AboveFilter")
-        : CloudProcessor(name), gridCellSize(gridCellSize) {}
+        : SingleResultCloudProcessor(name), gridCellSize(gridCellSize) {}
 
 protected:
     PointCloudPtr process();

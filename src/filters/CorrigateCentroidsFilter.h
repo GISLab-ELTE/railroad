@@ -10,16 +10,16 @@
 #ifndef RAILROAD_CORRIGATECENTROIDSFILTER_H
 #define RAILROAD_CORRIGATECENTROIDSFILTER_H
 
-#include "../base/CloudProcessor.h"
+#include "../base/SingleResultCloudProcessor.h"
 
 namespace railroad
 {
 
-class CorrigateCentroidsFilter : public CloudProcessor
+class CorrigateCentroidsFilter : public SingleResultCloudProcessor
 {
 public:
     CorrigateCentroidsFilter(double sampleRadius = 5.0, const std::string &name = "CorrigateCentroidsFilter")
-        : CloudProcessor(name), sampleRadius(sampleRadius) {}
+        : SingleResultCloudProcessor(name), sampleRadius(sampleRadius) {}
 
 protected:
     double sampleRadius;

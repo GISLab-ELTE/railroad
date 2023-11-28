@@ -11,19 +11,19 @@
 #define RAILROAD_MINHEIGHTFILTER_H
 
 #include <cmath>
-#include "../base/CloudProcessor.h"
+#include "../base/SingleResultCloudProcessor.h"
 
 namespace railroad
 {
 
-class MinHeightFilter : public CloudProcessor
+class MinHeightFilter : public SingleResultCloudProcessor
 {
 public:
     MinHeightFilter(double offset = 0.0, bool keepAbove = true, const std::string &name = "MinHeightFilter")
-        : CloudProcessor(name), offset(offset), keepAbove(keepAbove) {}
+        : SingleResultCloudProcessor(name), offset(offset), keepAbove(keepAbove) {}
 
     MinHeightFilter(SeedHelper::SeedType _runOnSeed, double offset = 0.0, bool keepAbove = true, const std::string &name = "MinHeightFilter")
-        : CloudProcessor(name), offset(offset), keepAbove(keepAbove), _runOnSeed(_runOnSeed) {}
+        : SingleResultCloudProcessor(name), offset(offset), keepAbove(keepAbove), _runOnSeed(_runOnSeed) {}
 
 protected:
     double offset;
